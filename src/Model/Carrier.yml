@@ -1,0 +1,72 @@
+fields:
+    id: 'name'
+    class: 'Carrier'
+    sql: 'a.id_carrier = 1'
+    columns:
+        id_reference:
+          type: increment
+        id_tax_rules_group:
+          type: numberBetween
+          args:
+            - 0
+            - 5
+        name:
+          type: word
+          args:
+            - 10
+        url:
+          type: url
+        active:
+          type: boolean
+          args:
+            - 95
+        shipping_handling:
+          type: boolean
+          args:
+            - 50
+        range_behavior:
+          type: boolean
+          args:
+            - 50
+        is_free:
+          type: boolean
+          args:
+            - 20
+        shipping_external:
+          type: boolean
+          args:
+            - 50
+        need_range:
+          type: boolean
+          args:
+            - 50
+        shipping_method:
+          type: numberBetween
+          args:
+            - 0 #min
+            - 3 #max
+        max_width:
+          type: numberBetween
+          args:
+            - 0
+            - 100
+        max_height:
+          type: numberBetween
+          args:
+            - 0
+            - 100
+        max_depth:
+          type: numberBetween
+          args:
+            - 0
+            - 100
+        max_depth:
+          type: numberBetween
+          args:
+            - 0
+            - 100
+        grade:
+          type: numberBetween
+          args:
+            - 0 #slowest
+            - 9 #fastest

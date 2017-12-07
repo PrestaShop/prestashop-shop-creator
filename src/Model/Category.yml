@@ -1,0 +1,24 @@
+fields:
+    id: 'name'
+    class: 'Category'
+    sql: 'a.id_category >= 2'
+    columns:
+        name:
+          type: word
+          args:
+            - 10 #nb chars
+        id_parent:
+          relation: Category
+        active:
+          type: boolean
+          args:
+            - 90 # probability of getting a true for this param
+        is_root_category:
+          type: boolean
+          args:
+            - 50 # probability of getting a true for this param
+default_entries:
+    Root:
+        id_parent: 0
+        active: 1
+        is_root_category: false

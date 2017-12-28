@@ -1,0 +1,25 @@
+fields:
+    primary: 'id_product, id_product_attribute'
+    class: 'StockAvailable'
+    columns:
+        id_stock_available:
+          type: md5
+          unique: true
+        id_product:
+          relation: Product
+        id_product_attribute:
+          relation: ProductAttribute
+          nullable: true
+        id_shop:
+          value: 1
+        id_shop_group:
+          value: 0
+        quantity:
+          type: numberBetween
+          args:
+            - 0
+            - 3000
+        depends_on_stock:
+          value: 0
+        out_of_stock:
+          value: 2

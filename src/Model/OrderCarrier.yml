@@ -1,0 +1,21 @@
+fields:
+    class: 'OrderCarrier'
+    columns:
+        id_order:
+          relation: Orders
+        id_carrier:
+          relation: Carrier
+        id_order_invoice:
+          value: 0
+        weight:
+          type: numberBetween
+          args:
+            - 1
+            - 10
+        shipping_cost_tax_excl:
+          value: 2
+        shipping_cost_tax_incl:
+          value: 2
+        tracking_number:
+          value: ''
+

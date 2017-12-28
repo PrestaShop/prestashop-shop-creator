@@ -1,0 +1,13 @@
+fields:
+    class: 'ProductSupplier'
+    columns:
+        id_product:
+          relation: Product
+        id_product_attribute:
+          relation: ProductAttribute
+        id_supplier:
+          relation: Supplier
+        product_supplier_reference:
+          value: ''
+        product_supplier_price_te:
+          value: 0

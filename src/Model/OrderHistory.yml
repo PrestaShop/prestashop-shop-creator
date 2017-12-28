@@ -1,0 +1,12 @@
+fields:
+    class: 'OrderHistory'
+    columns:
+        id_employee:
+          type: numberBetween
+          args:
+            - 0
+            - 1
+        id_order:
+          relation: Orders
+        id_order_state:
+          relation: OrderState

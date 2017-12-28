@@ -1,0 +1,28 @@
+fields:
+    id: 'name'
+    class: 'Store'
+    image: 'st'
+    columns:
+        id_country:
+          relation: Country
+        id_state:
+          relation: State
+        city:
+          type: city
+        postcode:
+          type: postcode
+        latitude:
+          type: latitude
+        longitude:
+          type: longitude
+        phone:
+          type: phoneNumber
+        fax:
+          type: phoneNumber
+        email:
+          type: email
+        active:
+          value: 1
+
+
+

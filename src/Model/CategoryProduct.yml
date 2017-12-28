@@ -1,0 +1,10 @@
+fields:
+    primary: 'id_category, id_product'
+    columns:
+        id:
+          type: md5
+          unique: true
+        id_category:
+          relation: Category
+        id_product:
+          relation: Product

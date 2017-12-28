@@ -1,0 +1,13 @@
+fields:
+    id: 'name'
+    class: 'Manufacturer'
+    image: 'm'
+    columns:
+        name:
+          type: words
+          args:
+            - 2 #nb words
+        active:
+          type: boolean
+          args:
+            - 95 # probability of getting a true for this param

@@ -1,0 +1,42 @@
+fields:
+    class: 'Guest'
+    columns:
+        id:
+          type: md5
+          unique: true
+        id_operating_system:
+          relation: OperatingSystem
+        id_web_browser:
+          relation: WebBrowser
+        id_customer:
+          relation: Customer
+        javascript:
+          type: boolean
+          args:
+            - 50
+        screen_resolution_x:
+          value: 0
+        screen_resolution_y:
+          value: 0
+        screen_color:
+          value: 0
+        sun_java:
+          value: 0
+        adobe_flash:
+          value: 0
+        adobe_director:
+          value: 0
+        apple_quicktime:
+          type: boolean
+          args:
+            - 50
+        real_player:
+          type: boolean
+          args:
+            - 50
+        windows_media:
+          type: boolean
+          args:
+            - 50
+        accept_language:
+          value: ''

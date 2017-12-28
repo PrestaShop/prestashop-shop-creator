@@ -1,18 +1,36 @@
 #order of the generator is important, you should put last the generator which depends on other ones
 parameters:
     shop_id: 1
-    categories: 100
+    customers: 1000
     manufacturers: 100
+    suppliers: 10
+    addresses: 1000
+    aliases: 1000
+    categories: 100
     warehouses: 2
     carriers: 3
-    suppliers: 10
+    profiles: 3
     specific_prices: 10000
-    products: 10000
+    attribute_groups: 10
     attributes: 1000
-    customers: 1000
+    products: 10000
     combinations: 1000
     carts: 1000
     cart_rules: 100
     customizations: 10
     features: 100
+    feature_values: 100
     orders: 1000
+    guests: 1000
+    order_histories: 10000
+    range_prices: 100
+    range_weights: 100
+    product_attributes: 100
+    images: 100
+    order_messages: 100
+    deliveries: 100
+    connections: 1000
+    product_suppliers: 100
+    order_carriers: 100
+    order_details: 100
+    stores: 100

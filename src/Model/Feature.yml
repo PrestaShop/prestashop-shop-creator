@@ -1,0 +1,10 @@
+fields:
+    class: 'Feature'
+    columns:
+        id:
+          type: word
+        position:
+          type: numberBetween
+          args:
+           - 1
+           - 100

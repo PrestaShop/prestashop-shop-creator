@@ -1,0 +1,9 @@
+fields:
+    primary: 'id_feature,id_product'
+    columns:
+        id_feature:
+          relation: Feature
+        id_product:
+          relation: Product
+        id_feature_value:
+          relation: FeatureValue

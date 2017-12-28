@@ -1,0 +1,13 @@
+fields:
+    id: 'value'
+    class: 'FeatureValue'
+    columns:
+        value:
+          type: word
+          unique: true
+        name:
+          relation: Feature
+        custom:
+          type: boolean
+          args:
+            - 50

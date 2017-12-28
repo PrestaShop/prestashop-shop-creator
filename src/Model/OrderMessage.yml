@@ -1,0 +1,6 @@
+fields:
+    class: 'OrderMessage'
+    id: 'name'
+    columns:
+        name:
+          type: word

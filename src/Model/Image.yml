@@ -1,0 +1,13 @@
+fields:
+    id: 'legend'
+    class: 'Image'
+    image: 'p'
+    columns:
+        legend:
+          type: md5
+          unique: true
+        id_product:
+          relation: Product
+          unique: true
+        cover:
+          value: 1

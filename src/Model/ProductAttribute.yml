@@ -1,0 +1,38 @@
+fields:
+    class: 'Combination'
+    columns:
+        id:
+          type: md5
+          unique: true
+        id_product:
+          relation: Product
+        reference:
+          value: ''
+        supplier_reference:
+          value: ''
+        ean13:
+          value: ean13
+        upc:
+          value: ean8
+        wholesale_price:
+          value: 0
+        price:
+          value: 0
+        ecotax:
+          value: 0
+        quantity:
+          type: numberBetween
+          args:
+            - 1
+            - 100
+        weight:
+          value: 0
+        unit_price_impact:
+          value: 0
+        default_on:
+          value: 1
+        minimal_quantity:
+          value: 1
+        available_date:
+          value: '0000-00-00'
+

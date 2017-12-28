@@ -1,0 +1,98 @@
+fields:
+    id: 'name'
+    class: 'Product'
+    columns:
+        name:
+          type: md5
+        id_supplier:
+          relation: Supplier
+        id_manufacturer:
+          relation: Manufacturer
+        id_category_default:
+          relation: Category
+        on_sale:
+          value: 0
+        online_only:
+          value: 0
+        ean13:
+          type: ean13
+        upc:
+          type: ean8
+        ecotax:
+          value: 0
+        quantity:
+          type: numberBetween
+          args:
+            - 0
+            - 100
+        minimal_quantity:
+          value: 1
+        price:
+          type: numberBetween
+          args:
+            - 1
+            - 1000
+        wholesale_price:
+          value: '{price}/100'
+        unit_price_ratio:
+          value: 0
+        additional_shipping_cost:
+          value: 0
+        reference:
+          type: md5
+        supplier_reference:
+          value: ''
+        width:
+          type: numberBetween
+          args:
+            - 0
+            - 10
+        height:
+          type: numberBetween
+          args:
+            - 0
+            - 10
+        depth:
+          type: numberBetween
+          args:
+            - 0
+            - 10
+        out_of_stock:
+          type: numberBetween
+          args:
+            - 1
+            - 2
+        quantity_discount:
+          value: 0
+        customizable:
+          value: 0
+        uploadable_files:
+          value: 0
+        text_fields:
+          value: 0
+        active:
+          value: 1
+        redirect_type:
+          value: 404
+        id_type_redirected:
+          value: 0
+        available_for_order:
+          value: 1
+        available_date:
+          value: '0000-00-00'
+        condition:
+          value: 'new'
+        show_price:
+          value: 1
+        indexed:
+          value: 1
+        cache_is_pack:
+          value: 0
+        cache_has_attachments:
+          value: 0
+        is_virtual:
+          value: 0
+        cache_default_attribute:
+          value: 0
+        advanced_stock_management:
+          value: 0

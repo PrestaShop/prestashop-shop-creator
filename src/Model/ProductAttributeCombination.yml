@@ -1,0 +1,7 @@
+fields:
+    primary: 'id_attribute, id_product_attribute'
+    columns:
+        id_attribute:
+          relation: Attribute
+        id_product_attribute:
+          relation: ProductAttribute

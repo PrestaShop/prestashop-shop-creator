@@ -1,0 +1,7 @@
+fields:
+    primary: 'id_product_attribute, id_image'
+    columns:
+        id_product_attribute:
+          relation: ProductAttribute
+        id_image:
+          relation: Image

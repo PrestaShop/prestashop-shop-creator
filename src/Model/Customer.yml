@@ -1,0 +1,49 @@
+fields:
+    id: 'firstname'
+    class: 'Customer'
+    columns:
+        id_gender:
+          relation: Gender
+        id_default_group:
+          type: numberBetween
+          args:
+            - 1 #min
+            - 3 #max
+        firstname:
+          type: md5
+        lastname:
+          type: lastName
+        email:
+          type: email
+        passwd:
+          type: md5
+        last_passwd_gen:
+          type: date
+          args:
+            - 'Y-m-d H:i:s'
+        birthday:
+          type: date
+        newsletter:
+          type: boolean
+          args:
+            - 90
+        ip_registration_newsletter:
+          type: ipv4
+        newsletter_date_add:
+          type: date
+        optin:
+          type: boolean
+          args:
+            - 90
+        secure_key:
+          type: md5
+        note:
+          type: text
+        active:
+          type: boolean
+          args:
+            - 90 # probability of getting a true for this param
+        is_guest:
+           type: boolean
+           args:
+             - 10

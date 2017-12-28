@@ -1,0 +1,113 @@
+fields:
+    class: 'OrderDetail'
+    columns:
+        id_order:
+          relation: Orders
+        id_order_invoice:
+          value: 0
+        id_wharehouse:
+          value: 0
+        id_shop:
+          value: 1
+        product_id:
+          relation: Product
+        product_attribute_id:
+          relation: ProductAttribute
+        product_name:
+          type: words
+          args:
+            - 3
+        product_quantity:
+          type: numberBetween
+          args:
+            - 1
+            - 100
+        product_quantity_in_stock:
+          type: numberBetween
+          args:
+            - 0
+            - 1
+        product_quantity_refunded:
+          type: numberBetween
+          args:
+            - 0
+            - 1
+        product_quantity_return:
+          type: numberBetween
+          args:
+            - 0
+            - 1
+        product_quantity_reinjected:
+          type: numberBetween
+          args:
+            - 0
+            - 1
+        product_price:
+          type: numberBetween
+          args:
+            - 1
+            - 1000
+        reduction_percent:
+          type: numberBetween
+          args:
+            - 0
+            - 100
+        reduction_amount:
+          value: 0
+        reduction_amount_tax_incl:
+          value: 0
+        reduction_amount_tax_excl:
+          value: 0
+        group_reduction:
+          value: 0
+        product_quantity_discount:
+          type: numberBetween
+          args:
+            - 0
+            - 10
+        product_ean13:
+          type: ean13
+        product_upc:
+          type: ean8
+        product_reference:
+          type: md5
+          unique: true
+        product_supplier_reference:
+          value: ''
+        product_weight:
+          type: numberBetween
+          args:
+            - 0
+            - 10
+        tax_computation_method:
+          value: 0
+        tax_name:
+          value: ''
+        tax_rate:
+          value: 0
+        ecotax_tax_rate:
+          value: 0
+        discount_quantity_applied:
+          value: 0
+        download_nb:
+          value: 0
+        download_deadline:
+          value: '0000-00-00 00:00:00'
+        total_price_tax_incl:
+          value: '{product_price}'
+        total_price_tax_excl:
+          value: '{product_price}'
+        unit_price_tax_incl:
+          value: '{product_price}'
+        unit_price_tax_excl:
+          value: '{product_price}'
+        total_shipping_price_tax_incl:
+          value: 0
+        total_shipping_price_tax_excl:
+          value: 0
+        purchase_supplier_price:
+          value: 0
+        original_product_price:
+          value: '{product_price}'
+        download_hash:
+          value: ''

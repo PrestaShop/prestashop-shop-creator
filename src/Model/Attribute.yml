@@ -1,0 +1,12 @@
+fields:
+    id: 'name'
+    class: 'Attribute'
+    columns:
+        name:
+          type: words
+          args:
+            - 2 #nb words
+        id_attribute_group:
+          relation: AttributeGroup
+        color:
+          type: hexColor

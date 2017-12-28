@@ -1,0 +1,21 @@
+fields:
+    class: 'Delivery'
+    columns:
+        id:
+          type: md5
+        id_shop:
+          value: ''
+        id_shop_group:
+          value: ''
+        id_carrier:
+          relation: Carrier
+        id_range_price:
+          relation: RangePrice
+        id_range_weight:
+          relation: RangeWeight
+        id_zone:
+          relation: Zone
+        price:
+          type: randomNumber
+          args:
+            - 2

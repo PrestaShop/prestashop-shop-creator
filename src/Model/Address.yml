@@ -1,0 +1,51 @@
+fields:
+    id: 'alias'
+    class: 'Address'
+    columns:
+        id_country:
+          relation: Country
+        id_state:
+          relation: State
+        exclusive_fields:
+          id_customer:
+            relation: Customer
+          id_manufacturer:
+            relation: Manufacturer
+          id_supplier:
+            relation: Supplier
+        id_warehouse:
+          value: 0
+        alias:
+          type: word
+          args:
+            - 10
+        company:
+          type: company
+        lastname:
+          type: lastName
+        firstname:
+          type: firstName
+        address1:
+          type: address
+        address2:
+          type: streetAddress
+        postcode:
+          type: postcode
+        city:
+          type: city
+        other:
+          type: word
+          args:
+            - 10
+        phone_mobile:
+          type: phoneNumber
+        vat_number:
+          type: randomNumber
+          args:
+            - 6
+        dni:
+          value: ''
+        active:
+          type: boolean
+          args:
+            - 95 # probability of getting a true for this param

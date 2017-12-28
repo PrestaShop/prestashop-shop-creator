@@ -1,0 +1,62 @@
+fields:
+    class: 'SpecificPrice'
+    columns:
+        id_cart:
+          relation: Cart
+        id_product:
+          relation: Product
+        id_shop:
+          type: numberBetween
+          args:
+            - 0
+            - 1
+        id_shop_group:
+          type: numberBetween
+          args:
+            - 0
+            - 1
+        id_currency:
+          type: numberBetween
+          args:
+            - 0
+            - 1
+        id_country:
+          relation: Country
+          nullable: true
+        id_group:
+          relation: Group
+          nullable: true
+        id_customer:
+          relation: Customer
+          nullable: true
+        id_product_attribute:
+          relation: ProductAttribute
+          nullable: true
+        price:
+          value: -1
+        from_quantity:
+          type: numberBetween
+          args:
+            - 1
+            - 10
+        reduction:
+          type: numberBetween
+          args:
+            - 1
+            - 2
+        reduction_tax:
+          value: 1
+        reduction_type:
+          value: 'percentage'
+        from:
+          type: date
+          args:
+            - 'Y-m-d H:i:s'
+            - 'yesterday'
+          nullable: true
+        to:
+          type: date
+          args:
+            - 'Y-m-d H:i:s'
+            - 'tomorrow'
+          nullable: true

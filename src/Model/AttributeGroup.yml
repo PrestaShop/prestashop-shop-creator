@@ -1,0 +1,19 @@
+fields:
+    id: 'name'
+    class: 'AttributeGroup'
+    columns:
+        name:
+          type: words
+          args:
+            - 2 #nb words
+        group_type:
+          type: randomElement
+          args:
+            -
+              - select
+              - radio
+              - color
+        is_color_group:
+          type: boolean
+          args:
+            - 95 # probability of getting a true for this param

@@ -1,0 +1,14 @@
+fields:
+    class: 'RangeWeight'
+    columns:
+        id:
+          type: md5
+        id_carrier:
+          relation: Carrier
+        delimiter1:
+          value: 0
+        delimiter2:
+          type: numberBetween
+          args:
+            - 1000
+            - 10000

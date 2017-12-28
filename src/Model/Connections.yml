@@ -1,0 +1,19 @@
+fields:
+    class: 'Connection'
+    columns:
+        id:
+          type: md5
+        id_guest:
+          relation: Guest
+        id_page:
+          type: randomNumber
+          args:
+            - 2
+        ip_address:
+          type: ipv4
+        http_referer:
+          type: url
+        id_shop_group:
+          value: 1
+        id_shop:
+          value: 1

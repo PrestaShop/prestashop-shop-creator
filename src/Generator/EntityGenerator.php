@@ -321,14 +321,14 @@ class EntityGenerator
             }
         }
 
-        $this->addAttribute($element, $fieldName, $value);
-
         if ($fieldName === $this->id) {
             if ($fieldName !== 'id') {
                 $this->addAttribute($element, 'id', $value);
             }
             $this->hasId = true;
         }
+
+        $this->addAttribute($element, $fieldName, $value);
     }
 
     /**

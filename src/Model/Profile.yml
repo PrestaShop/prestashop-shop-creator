@@ -5,3 +5,10 @@ fields:
     columns:
         name:
           type: word
+entities:
+    Logistician:
+      name: Logistician
+    Translator:
+      name: Translator
+    Salesman:
+      name: Salesman

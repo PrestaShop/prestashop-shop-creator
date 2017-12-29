@@ -467,7 +467,7 @@ class EntityGenerator
         $field = $element->addChild('field');
         $field->addAttribute('name', $key);
         if (array_key_exists('relation', $value)) {
-            $field->addAttribute('relation', strtolower($value['relation']));
+            $field->addAttribute('relation', Inflector::tableize($value['relation']));
         }
     }
 }

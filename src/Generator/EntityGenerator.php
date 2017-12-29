@@ -3,10 +3,13 @@
 namespace ShopGenerator\Generator;
 
 use Faker\Factory;
+use MathParser\Interpreting\Evaluator;
+use MathParser\StdMathParser;
 use RuntimeException;
 use Doctrine\Common\Inflector\Inflector;
 
-class EntityGenerator {
+class EntityGenerator
+{
     /** @var \Faker\Generator */
     protected $fakerGenerator;
 
@@ -46,18 +49,30 @@ class EntityGenerator {
     /** @var array mapping of existing relations (entities already created) */
     protected $relations;
 
+    /** @var array list of existing relations for each entities */
+    protected $relationList;
+
+    /** @var array list of already generated values for the entity relations */
+    protected $relationValues = [];
+
+    /** @var array list of values associated with each fields for a given entity */
+    protected $fieldValues = [];
+
     /**
      * EntityGenerator constructor.
      *
      * @param array $entityModel
      * @param int $nbEntities
      * @param array $relations
+     * @param array $relationList
      */
-    public function __construct($entityElementName, $entityModel, $nbEntities, $relations)
+    public function __construct($entityElementName, $entityModel, $nbEntities, $relations, $relationList)
     {
+        echo 'Generating '.$entityElementName." entities\n";
         $this->fakerGenerator = Factory::create('fr_FR');
         $this->nbEntities = $nbEntities;
         $this->entityModel = $entityModel;
+        $this->relationList = $relationList;
         $fields = $this->entityModel['fields'];
         if (isset($fields['primary'])) {
             $this->primary = $fields['primary'];
@@ -77,9 +92,18 @@ class EntityGenerator {
         $this->entityElementName = $entityElementName;
         $this->relations = $relations;
         $this->increment = 1;
-        $this->xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?>'.
+        $this->xml = new \SimpleXMLElement(
+            '<?xml version="1.0" encoding="UTF-8"?>'.
             '<entity_'.$this->entityElementName.'></entity_'.$this->entityElementName.'>'
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function getRelationList()
+    {
+        return $this->relationList;
     }
 
     /**
@@ -118,12 +142,18 @@ class EntityGenerator {
         $this->addDefaultEntityData($child);
         if ($this->primary) {
             $primaryFields = explode(',', $this->primary);
-            foreach($primaryFields as $primaryField) {
+            foreach ($primaryFields as $primaryField) {
                 $primaryField = trim($primaryField);
                 $fieldInfos = $this->entityModel['fields']['columns'][$primaryField];
                 if (isset($fieldInfos['relation'])) {
                     $relationName = Inflector::tableize($fieldInfos['relation']);
-                    $relations[] = $relationName;
+                    if (array_key_exists('nullable', $fieldInfos) && $fieldInfos['nullable'] == true) {
+                        $nullable = true;
+                    } else {
+                        $nullable = false;
+                    }
+
+                    $relations[] = ['name' => $relationName, 'nullable' => $nullable];
                 }
             }
             $this->walkOnRelations($child, $relations);
@@ -143,11 +173,17 @@ class EntityGenerator {
      *
      * @throws RuntimeException
      */
-    private function walkOnRelations(\SimpleXMLElement $child, $relations, $relationValues = array()) {
-        $relationName = array_pop($relations);
+    private function walkOnRelations(\SimpleXMLElement $child, $relations, $relationValues = array())
+    {
+        $relationInfos = array_pop($relations);
+        $relationName = $relationInfos['name'];
         $this->checkRelation($relationName);
 
-        foreach($this->relations[$relationName] as $relation) {
+        $currentRelations = $this->relations[$relationName];
+        if ($relationInfos['nullable']) {
+            $currentRelations[] = array('id' => 0);
+        }
+        foreach ($currentRelations as $relation) {
             $relationValues[$relationName] = $relation;
 
             if (!empty($relations)) {
@@ -156,7 +192,6 @@ class EntityGenerator {
                 $this->generateEntityData($child, $relationValues);
             }
         }
-
     }
 
     /**
@@ -170,11 +205,13 @@ class EntityGenerator {
             if ($relationName === $this->entityElementName) {
                 throw new RuntimeException(
                     'You first need to define a default entry before using' .
-                    ' a self-referenced relation with ' . $this->entityElementName);
+                    ' a self-referenced relation with ' . $this->entityElementName
+                );
             } else {
                 throw new RuntimeException(
                     'You first need to define an entry before using' .
-                    ' a relation with ' . $relationName);
+                    ' a relation with ' . $relationName
+                );
             }
         }
     }
@@ -187,7 +224,9 @@ class EntityGenerator {
      */
     private function generateEntityData(\SimpleXMLElement $element, $relationValues = null)
     {
+        $this->fieldValues = [];
         $child = $element->addChild($this->entityElementName);
+        $this->relationList[$this->entityElementName] = [];
         foreach ($this->entityModel['fields']['columns'] as $fieldName => $fieldDescription) {
             if ($fieldName === 'exclusive_fields') {
                 // select randomly one of the field
@@ -195,22 +234,57 @@ class EntityGenerator {
                 $fieldDescription = $fieldDescription[$fieldName];
             }
             if (array_key_exists('relation', $fieldDescription)) {
-                $this->addRelation(
-                    $child,
-                    $fieldName,
-                    Inflector::tableize($fieldDescription['relation']),
-                    $relationValues
-                );
+                $this->relationList[$this->entityElementName][$fieldName] = Inflector::tableize($fieldDescription['relation']);
             } elseif (array_key_exists('value', $fieldDescription)) {
-                $child->addAttribute($fieldName, $fieldDescription['value']);
+                $this->addValueAttribute($child, $fieldName, $fieldDescription['value']);
             } elseif (array_key_exists('type', $fieldDescription)) {
                 $this->addFakeAttribute($child, $fieldName, $fieldDescription);
             }
         }
+        // add all the relations
+        foreach ($this->relationList[$this->entityElementName] as $fieldName => $relation) {
+            $this->addRelation(
+                $child,
+                $fieldName,
+                $relation,
+                $relationValues,
+                $this->entityElementName,
+                (array_key_exists('nullable', $fieldDescription) && $fieldDescription['nullable'] == true)
+            );
+        }
+
         if ($this->hasId) {
             $this->relations[$this->entityElementName][] = $child;
         }
         $this->hasId = null;
+    }
+
+    /**
+     * Add & evaluate value attribute
+     *
+     * @param \SimpleXMLElement $element
+     * @param string            $fieldName
+     * @param string            $value
+     */
+    private function addValueAttribute(\SimpleXMLElement $element, $fieldName, $value)
+    {
+        if (preg_match_all('/\{.+?\}/uis', $value, $matches)) {
+            $savedValue = $value;
+            foreach ($matches[0] as $match) {
+                $match = str_replace(array('{','}'), '', $match);
+                if (array_key_exists($match, $this->fieldValues)) {
+                    $value = str_replace('{'.$match.'}', $this->fieldValues[$match], $value);
+                }
+            }
+            if ($savedValue != $value) {
+                $parser = new StdMathParser();
+                $AST = $parser->parse($value);
+                $evaluator = new Evaluator();
+
+                $value = $AST->accept($evaluator);
+            }
+        }
+        $this->addAttribute($element, $fieldName, $value);
     }
 
     /**
@@ -227,7 +301,6 @@ class EntityGenerator {
         $fakeType = $fieldDescription['type'];
         if ($fakeType === 'increment') {
             $value = $this->increment++;
-            $element->addAttribute($fieldName, $value);
         } elseif (array_key_exists('args', $fieldDescription)) {
             $argsFunctions = $fieldDescription['args'];
             $value = call_user_func_array(array($this->fakerGenerator, $fakeType), $argsFunctions);
@@ -237,7 +310,6 @@ class EntityGenerator {
             if ($fakeType === 'boolean') {
                 $value = (int)$value;
             }
-            $element->addAttribute($fieldName, $value);
         } else {
             if (array_key_exists('unique', $fieldDescription)) {
                 $value = $this->fakerGenerator->unique()->{$fakeType};
@@ -247,14 +319,57 @@ class EntityGenerator {
             if ($fakeType === 'boolean') {
                 $value = (int)$value;
             }
-            $element->addAttribute($fieldName, $value);
         }
+
+        $this->addAttribute($element, $fieldName, $value);
+
         if ($fieldName === $this->id) {
             if ($fieldName !== 'id') {
-                $element->addAttribute('id', $value);
+                $this->addAttribute($element, 'id', $value);
             }
             $this->hasId = true;
         }
+    }
+
+    /**
+     * The function takes care of choosing a random value from a relation, handling dependencies as well
+     *
+     * @param string $relationName
+     * @param string $entityName
+     *
+     * @return mixed
+     */
+    private function getRandomRelationId($relationName, $entityName)
+    {
+        $relations = $this->relationList[$entityName];
+        foreach ($relations as $relation) {
+            if (array_key_exists($relation, $this->relationList)) {
+                $relatedRelations = $this->relationList[$relation];
+                $dependencies = array_intersect($relations, $relatedRelations);
+            }
+        }
+        while (1) {
+            $randomRelation = $this->relations[$relationName][array_rand($this->relations[$relationName])];
+            // if there's no dependencies, any random value is ok
+            if (empty($dependencies) || !in_array($relationName, $dependencies)) {
+                break;
+            }
+
+            // but if we do have dependencies, check the value we have chosen match the random one
+            foreach ($dependencies as $dependency) {
+                if (array_key_exists($dependency, $this->relationValues)) {
+                    if ($randomRelation['id'] != $this->relationValues[$relationName]) {
+                        // no match, try again!
+                        continue 2;
+                    }
+                }
+            }
+            break;
+        }
+
+        $id = $randomRelation['id'];
+        $this->relationValues[$relationName] = $id;
+        return $id;
     }
 
     /**
@@ -262,19 +377,42 @@ class EntityGenerator {
      * @param string            $fieldName
      * @param string            $relationName
      * @param array             $relationValues
+     * @param string            $entityName
+     * @param bool              $canBeNull
      *
      * @throws RuntimeException
      */
-    private function addRelation(\SimpleXMLElement $element, $fieldName, $relationName, $relationValues)
-    {
+    private function addRelation(
+        \SimpleXMLElement $element,
+        $fieldName,
+        $relationName,
+        $relationValues,
+        $entityName,
+        $canBeNull = false
+    ) {
         $this->checkRelation($relationName);
 
         if ($relationValues && array_key_exists($relationName, $relationValues)) {
-            $value = $relationValues[$relationName]['id'];
+            $value = (string)$relationValues[$relationName]['id'];
         } else {
-            $value = $this->relations[$relationName][array_rand($this->relations[$relationName])]['id'];
+            if ($canBeNull && mt_rand(0, 1)) {
+                $value = 0;
+            } else {
+                $value = (string)$this->getRandomRelationId($relationName, $entityName);
+            }
         }
-        $element->addAttribute($fieldName, (string)$value);
+        $this->addAttribute($element, $fieldName, $value);
+    }
+
+    /**
+     * @param \SimpleXMLElement $element
+     * @param string            $fieldName
+     * @param string            $value
+     */
+    private function addAttribute(\SimpleXMLElement $element, $fieldName, $value)
+    {
+        $this->fieldValues[$fieldName] = $value;
+        $element->addAttribute($fieldName, $value);
     }
 
     /**
@@ -285,9 +423,9 @@ class EntityGenerator {
         if (array_key_exists('entities', $this->entityModel)) {
             foreach ($this->entityModel['entities'] as $id => $fields) {
                 $child = $element->addChild($this->entityElementName);
-                $child->addAttribute('id', $id);
+                $this->addAttribute($child, 'id', $id);
                 foreach ($fields as $fieldName => $value) {
-                    $child->addAttribute($fieldName, $value);
+                    $this->addAttribute($child, $fieldName, $value);
                 }
                 $this->relations[$this->entityElementName][] = $child;
             }

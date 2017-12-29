@@ -24,6 +24,7 @@ class XMLGeneratorService
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/../Model');
         $relations = self::initializeDefaultData();
+        $relationList = [];
 
         $fileList = self::sortModelWithDependencies($finder);
 
@@ -38,10 +39,18 @@ class XMLGeneratorService
                 }
             }
 
-            $entity = new EntityGenerator(Inflector::tableize($modelName), $entityModel, $configuration[$configKey], $relations);
+            $entity = new EntityGenerator(
+                Inflector::tableize($modelName),
+                $entityModel,
+                $configuration[$configKey],
+                $relations,
+                $relationList
+            );
             $entity->create();
             $entity->save($outputPath);
             $relations = $entity->getRelations();
+            $relationList = $entity->getRelationList();
+
             unset($entity);
             gc_collect_cycles();
         }
@@ -54,14 +63,15 @@ class XMLGeneratorService
      *
      * @return array
      */
-    private static function sortModelWithDependencies(Finder $finder) {
+    private static function sortModelWithDependencies(Finder $finder)
+    {
         foreach ($finder as $file) {
             $pathName = $file->getPathname();
             $modelType = str_replace('.yml', '', $file->getFilename());
             $configKey = Inflector::tableize(Inflector::pluralize($modelType));
             $yamlContent = file_get_contents($pathName);
             if (preg_match_all('/relation:\W*(.+)$/uim', $yamlContent, $matches)) {
-                foreach($matches[1] as $dependency) {
+                foreach ($matches[1] as $dependency) {
                     if ($dependency != $modelType) {
                         $dependencies[$dependency][] = $modelType;
                     }

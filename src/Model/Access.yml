@@ -1,0 +1,11 @@
+fields:
+    primary: 'id_profile, id_authorization_role'
+    sql: 'a.id_profile > 1'
+    columns:
+        id:
+          type: md5
+          unique: true
+        id_profile:
+          relation: Profile
+        id_authorization_role:
+          relation: AuthorizationRole

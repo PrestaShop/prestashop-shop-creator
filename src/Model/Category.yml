@@ -33,10 +33,3 @@ fields_lang:
           type: word
           args:
             - 10
-entities:
-    Home:
-      fields:
-        id_parent: Root
-        active: 1
-        is_root_category: true
-      hidden: true

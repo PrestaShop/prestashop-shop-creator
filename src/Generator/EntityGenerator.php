@@ -322,12 +322,14 @@ class EntityGenerator
             $this->relations[$this->entityElementName][] = $child;
             if ($this->imgPath) {
                 @mkdir(__DIR__.'/../../generated_data/img/'.$this->imgPath, 0777, true);
-                $this->fakerGenerator->image(
+                $filepath = $this->fakerGenerator->image(
                     __DIR__.'/../../generated_data/img/'.$this->imgPath,
                     $this->imgWidth,
                     $this->imgHeight,
                     $this->imgCategory
                 );
+                copy($filepath, __DIR__.'/../../generated_data/img/'.$this->imgPath.'/'.$idValue.'.jpg');
+                unlink($filepath);
             }
         }
 

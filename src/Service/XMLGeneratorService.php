@@ -118,7 +118,6 @@ class XMLGeneratorService
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/../../default_data');
         foreach ($finder as $file) {
-            copy($file->getPathname(), __DIR__.'/../../generated_data/'.$file->getFilename());
             $entityName = str_replace('.xml', '', $file->getFilename());
             $xml = new \SimpleXMLElement(file_get_contents($file->getPathname()));
             foreach ($xml->entities->$entityName as $values) {

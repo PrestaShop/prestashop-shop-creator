@@ -1,0 +1,11 @@
+fields:
+    primary: 'id_carrier, id_zone'
+    sql: 'a.id_carrier > 1'
+    columns:
+        id:
+          type: md5
+          unique: true
+        id_carrier:
+          relation: Carrier
+        id_zone:
+          relation: Zone

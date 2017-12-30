@@ -4,3 +4,10 @@ fields:
     columns:
         name:
           type: word
+          skip: true
+fields_lang:
+    columns:
+        name:
+          type: word
+        message:
+          type: sentence

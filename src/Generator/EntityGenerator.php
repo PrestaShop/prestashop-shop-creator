@@ -3,6 +3,7 @@
 namespace ShopGenerator\Generator;
 
 use Faker\Factory;
+use Faker\Generator;
 use MathParser\Interpreting\Evaluator;
 use MathParser\StdMathParser;
 use RuntimeException;
@@ -13,6 +14,9 @@ class EntityGenerator
     /** @var \Faker\Generator */
     protected $fakerGenerator;
 
+    /** @var \Faker\Generator[] */
+    protected $localeFakerGenerator;
+
     /** @var int */
     protected $nbEntities;
 
@@ -21,6 +25,9 @@ class EntityGenerator
 
     /** @var \SimpleXMLElement */
     protected $xml;
+
+    /** @var \SimpleXMLElement[] */
+    protected $xmlLang = null;
 
     /** @var int */
     protected $increment;
@@ -31,8 +38,8 @@ class EntityGenerator
     /** @var string primary key */
     protected $primary = '';
 
-    /** @var boolean return true if an element contains an id */
-    protected $hasId;
+    /** @var boolean */
+    protected $hasLang = false;
 
     /** @var string related class name */
     protected $class = '';
@@ -66,10 +73,10 @@ class EntityGenerator
      * @param array $relations
      * @param array $relationList
      */
-    public function __construct($entityElementName, $entityModel, $nbEntities, $relations, $relationList)
+    public function __construct($entityElementName, $entityModel, $nbEntities, $relations, $relationList, $langs)
     {
         echo 'Generating '.$entityElementName." entities\n";
-        $this->fakerGenerator = Factory::create('fr_FR');
+        $this->fakerGenerator = Factory::create();
         $this->nbEntities = $nbEntities;
         $this->entityModel = $entityModel;
         $this->relationList = $relationList;
@@ -96,6 +103,17 @@ class EntityGenerator
             '<?xml version="1.0" encoding="UTF-8"?>'.
             '<entity_'.$this->entityElementName.'></entity_'.$this->entityElementName.'>'
         );
+        if (array_key_exists('fields_lang', $this->entityModel)) {
+            $this->hasLang = true;
+            foreach($langs as $lang) {
+                $langLocale = explode('_', $lang);
+                $this->localeFakerGenerator[$langLocale[0]] = Factory::create($lang);
+                $this->xmlLang[$langLocale[0]] = new \SimpleXMLElement(
+                    '<?xml version="1.0" encoding="UTF-8"?>' .
+                    '<entity_' . $this->entityElementName . '></entity_' . $this->entityElementName . '>'
+                );
+            }
+        }
     }
 
     /**
@@ -131,15 +149,27 @@ class EntityGenerator
         $dom->formatOutput = true;
         $output = $dom->saveXML();
         file_put_contents($outputPath.'/'.$this->entityElementName.'.xml', $output);
+        if ($this->hasLang) {
+            foreach($this->xmlLang as $lang => $xmlLang) {
+                $domLang = dom_import_simplexml($xmlLang)->ownerDocument;
+                $domLang->preserveWhiteSpace = false;
+                $domLang->formatOutput = true;
+                $outputLang = $domLang->saveXML();
+                @mkdir($outputPath . '/langs/' . $lang . '/data/', 0777, true);
+                file_put_contents($outputPath . '/langs/' . $lang . '/data/' . $this->entityElementName . '.xml', $outputLang);
+            }
+        }
     }
 
     /**
+     * Fill entities data for the main xml file
+     *
      * @throws RuntimeException
      */
     private function addEntityData()
     {
         $child = $this->xml->addChild('entities');
-        $this->addDefaultEntityData($child);
+        $this->addCustomEntityData($child, $this->xmlLang);
         if ($this->primary) {
             $primaryFields = explode(',', $this->primary);
             foreach ($primaryFields as $primaryField) {
@@ -159,7 +189,10 @@ class EntityGenerator
             $this->walkOnRelations($child, $relations);
         } else {
             for ($i = 1; $i <= $this->nbEntities; $i++) {
-                $this->generateEntityData($child);
+                $idValue = $this->generateEntityData($child);
+                if ($this->hasLang) {
+                    $this->generateLangEntityData($idValue);
+                }
             }
         }
     }
@@ -189,12 +222,17 @@ class EntityGenerator
             if (!empty($relations)) {
                 $this->walkOnRelations($child, $relations, $relationValues);
             } else {
-                $this->generateEntityData($child, $relationValues);
+                $idValue = $this->generateEntityData($child, $relationValues);
+                if ($this->hasLang) {
+                    $this->generateLangEntityData($idValue);
+                }
             }
         }
     }
 
     /**
+     * Check a relation is properly filled
+     *
      * @param string $relationName
      *
      * @throws RuntimeException
@@ -217,9 +255,12 @@ class EntityGenerator
     }
 
     /**
+     * Generate main xml files
+     *
      * @param \SimpleXMLElement $element
      * @param array             $relationValues set of values used for relation, instead of a random one
      *
+     * @return string
      * @throws RuntimeException
      */
     private function generateEntityData(\SimpleXMLElement $element, $relationValues = null)
@@ -227,6 +268,7 @@ class EntityGenerator
         $this->fieldValues = [];
         $child = $element->addChild($this->entityElementName);
         $this->relationList[$this->entityElementName] = [];
+        $idValue = null;
         foreach ($this->entityModel['fields']['columns'] as $fieldName => $fieldDescription) {
             if ($fieldName === 'exclusive_fields') {
                 // select randomly one of the field
@@ -238,7 +280,10 @@ class EntityGenerator
             } elseif (array_key_exists('value', $fieldDescription)) {
                 $this->addValueAttribute($child, $fieldName, $fieldDescription['value']);
             } elseif (array_key_exists('type', $fieldDescription)) {
-                $this->addFakeAttribute($child, $fieldName, $fieldDescription);
+                $value = $this->addFakerAttribute($child, $fieldName, $fieldDescription);
+                if ($idValue === null && $value !== null) {
+                    $idValue = $value;
+                }
             }
         }
         // add all the relations
@@ -253,10 +298,43 @@ class EntityGenerator
             );
         }
 
-        if ($this->hasId) {
+        if ($idValue !== null) {
             $this->relations[$this->entityElementName][] = $child;
         }
-        $this->hasId = null;
+
+        return $idValue;
+    }
+
+    /**
+     * Generate the lang xml files
+     *
+     * @param string $idValue the id value generated in the main xml file
+     */
+    private function generateLangEntityData($idValue)
+    {
+        $childLangs = [];
+        foreach($this->xmlLang as $lang => $xmlLang) {
+            $childLangs[$lang] = $xmlLang->addChild($this->entityElementName);
+            if (array_key_exists('id_shop', $this->entityModel['fields_lang'])) {
+                $childLangs[$lang]->addAttribute('id_shop', $this->entityModel['fields_lang']['id_shop']);
+            }
+        }
+
+        foreach($childLangs as $locale => $child) {
+            $this->addValueAttribute($child, 'id', $idValue);
+            foreach ($this->entityModel['fields_lang']['columns'] as $fieldName => $fieldDescription) {
+                if (array_key_exists('value', $fieldDescription)) {
+                    $this->addValueAttribute($child, $fieldName, $fieldDescription['value']);
+                } elseif (array_key_exists('type', $fieldDescription)) {
+                    $this->addFakerAttribute(
+                        $child,
+                        $fieldName,
+                        $fieldDescription,
+                        $this->localeFakerGenerator[$locale]
+                    );
+                }
+            }
+        }
     }
 
     /**
@@ -288,12 +366,30 @@ class EntityGenerator
     }
 
     /**
+     * Add an attribute generated by the corresponding faker rule
+     *
      * @param \SimpleXMLElement $element
      * @param string            $fieldName
      * @param array             $fieldDescription
+     * @param Generator         $fakerGenerator
+     *
+     * @return string
      */
-    private function addFakeAttribute(\SimpleXMLElement $element, $fieldName, $fieldDescription)
+    private function addFakerAttribute(
+        \SimpleXMLElement $element,
+        $fieldName,
+        $fieldDescription,
+        $fakerGenerator = null
+    )
     {
+        $idValue = null;
+        // no custom generator, use the default one
+        if ($fakerGenerator === null) {
+            $fakerGenerator = $this->fakerGenerator;
+            $inLangFile = false;
+        } else {
+            $inLangFile = true;
+        }
         if ($fieldName === $this->id) {
             // since it's an id, set it as unique
             $fieldDescription['unique'] = true;
@@ -303,7 +399,7 @@ class EntityGenerator
             $value = $this->increment++;
         } elseif (array_key_exists('args', $fieldDescription)) {
             $argsFunctions = $fieldDescription['args'];
-            $value = call_user_func_array(array($this->fakerGenerator, $fakeType), $argsFunctions);
+            $value = call_user_func_array(array($fakerGenerator, $fakeType), $argsFunctions);
             if (is_array($value)) { // in case of words
                 $value = implode(' ', $value);
             }
@@ -312,23 +408,28 @@ class EntityGenerator
             }
         } else {
             if (array_key_exists('unique', $fieldDescription)) {
-                $value = $this->fakerGenerator->unique()->{$fakeType};
+                $value = $fakerGenerator->unique()->{$fakeType};
             } else {
-                $value = $this->fakerGenerator->{$fakeType};
+                $value = $fakerGenerator->{$fakeType};
             }
             if ($fakeType === 'boolean') {
                 $value = (int)$value;
             }
         }
 
-        if ($fieldName === $this->id) {
-            if ($fieldName !== 'id') {
-                $this->addAttribute($element, 'id', $value);
+        if (!$inLangFile) {
+            if ($fieldName === $this->id) {
+                if ($fieldName !== 'id') {
+                    $this->addAttribute($element, 'id', $value);
+                }
+                $idValue = $value;
             }
-            $this->hasId = true;
+        }
+        if (!array_key_exists('skip', $fieldDescription) || $fieldDescription['skip'] == false) {
+            $this->addAttribute($element, $fieldName, $value);
         }
 
-        $this->addAttribute($element, $fieldName, $value);
+        return $idValue;
     }
 
     /**
@@ -351,7 +452,7 @@ class EntityGenerator
         while (1) {
             $randomRelation = $this->relations[$relationName][array_rand($this->relations[$relationName])];
             // if there's no dependencies, any random value is ok
-            if (empty($dependencies) || !in_array($relationName, $dependencies)) {
+            if (empty($dependencies) || !in_array($relationName, $dependencies) || $relationName == $entityName) {
                 break;
             }
 
@@ -373,6 +474,10 @@ class EntityGenerator
     }
 
     /**
+     * Add the attribute corresponding to the given relation
+     * If relationValues is set, use those values to fill the attribute, otherwise choose a random attribute from
+     * the relation
+     *
      * @param \SimpleXMLElement $element
      * @param string            $fieldName
      * @param string            $relationName
@@ -405,6 +510,8 @@ class EntityGenerator
     }
 
     /**
+     * Add an attribute in the main xml file
+     *
      * @param \SimpleXMLElement $element
      * @param string            $fieldName
      * @param string            $value
@@ -416,24 +523,80 @@ class EntityGenerator
     }
 
     /**
-     * @param \SimpleXMLElement $element
+     * Add an attribute in each xml lang file
+     *
+     * @param \SimpleXMLElement[] $elements
+     * @param string              $fieldName
+     * @param string              $value
      */
-    private function addDefaultEntityData(\SimpleXMLElement $element)
+    private function addLangAttribute($elements, $fieldName, $value)
+    {
+        foreach($elements as $key => $element) {
+            $element->addAttribute($fieldName, $value);
+        }
+    }
+
+    /**
+     * Add manually set entity data from the entities section of the yaml file
+     *
+     * @param \SimpleXMLElement $element
+     * @param \SimpleXMLElement[] $langElements
+     */
+    private function addCustomEntityData(\SimpleXMLElement $element, $langElements)
     {
         if (array_key_exists('entities', $this->entityModel)) {
             foreach ($this->entityModel['entities'] as $id => $fields) {
-                $child = $element->addChild($this->entityElementName);
+                if (!empty($fields) && !array_key_exists('skip', $fields)) {
+                    $child = $element->addChild($this->entityElementName);
+                } else {
+                    $child = new \SimpleXMLElement('<'.$this->entityElementName.'></'.$this->entityElementName.'>');
+                }
+
                 $this->addAttribute($child, 'id', $id);
-                foreach ($fields as $fieldName => $value) {
-                    $this->addAttribute($child, $fieldName, $value);
+                if (array_key_exists('fields', $fields)) {
+                    foreach ($fields['fields'] as $fieldName => $value) {
+                        if ($fieldName !== 'id') {
+                            $this->addAttribute($child, $fieldName, $value);
+                        }
+                    }
                 }
                 $this->relations[$this->entityElementName][] = $child;
+
+                if ($this->hasLang) {
+                    $this->addCustomLangEntityData($id, $fields, $langElements);
+                }
             }
         }
     }
 
     /**
+     * Add manually set entity data from the fields_lang of the entities section of the yaml file
      *
+     * @param string $id
+     * @param array $fields
+     * @param \SimpleXMLElement[] $langElements
+     */
+    private function addCustomLangEntityData($id, $fields, $langElements)
+    {
+        if (empty($fields) || array_key_exists('skip', $fields)) {
+            return;
+        }
+
+        foreach($langElements as $key => $langElement) {
+            $langElements[$key] = $langElement->addChild($this->entityElementName);
+        }
+
+        $this->addLangAttribute($langElements, 'id', $id);
+
+        foreach ($fields['fields_lang'] as $fieldName => $value) {
+            if ($fieldName !== 'id') {
+                $this->addLangAttribute($langElements, $fieldName, $value);
+            }
+        }
+    }
+
+    /**
+     *  Fill the fields section of the xml file
      */
     private function addFieldsDescription()
     {
@@ -451,23 +614,32 @@ class EntityGenerator
             $child->addAttribute('image', $this->imgPath);
         }
 
-        foreach ($this->entityModel['fields']['columns'] as $key => $value) {
-            if ($key === 'exclusive_fields') {
-                foreach ($value as $subkey => $subvalue) {
+        foreach ($this->entityModel['fields']['columns'] as $fieldName => $fieldDescription) {
+            if ($fieldName === 'exclusive_fields') {
+                foreach ($fieldDescription as $subkey => $subvalue) {
                     $this->addField($child, $subkey, $subvalue);
                 }
             } else {
-                $this->addField($child, $key, $value);
+                if (!array_key_exists('skip', $fieldDescription) || $fieldDescription['skip'] == false) {
+                    $this->addField($child, $fieldName, $fieldDescription);
+                }
             }
         }
     }
 
-    private function addField(\SimpleXMLElement $element, $key, $value)
+    /**
+     * Add a field element in the fields section of the xml file
+     *
+     * @param \SimpleXMLElement $element
+     * @param string            $fieldName
+     * @param array             $fieldDescription
+     */
+    private function addField(\SimpleXMLElement $element, $fieldName, $fieldDescription)
     {
         $field = $element->addChild('field');
-        $field->addAttribute('name', $key);
-        if (array_key_exists('relation', $value)) {
-            $field->addAttribute('relation', Inflector::tableize($value['relation']));
+        $field->addAttribute('name', $fieldName);
+        if (array_key_exists('relation', $fieldDescription)) {
+            $field->addAttribute('relation', Inflector::tableize($fieldDescription['relation']));
         }
     }
 }

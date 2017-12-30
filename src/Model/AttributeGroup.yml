@@ -6,6 +6,7 @@ fields:
           type: words
           args:
             - 2 #nb words
+          skip: true
         group_type:
           type: randomElement
           args:
@@ -17,3 +18,13 @@ fields:
           type: boolean
           args:
             - 95 # probability of getting a true for this param
+fields_lang:
+    columns:
+        name:
+          type: words
+          args:
+            - 2 #nb words
+        public_name:
+          type: words
+          args:
+            - 2 #nb words

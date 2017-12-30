@@ -6,8 +6,13 @@ fields:
         legend:
           type: md5
           unique: true
+          skip: true
         id_product:
           relation: Product
           unique: true
         cover:
           value: 1
+fields_lang:
+    columns:
+        legend:
+          type: md5

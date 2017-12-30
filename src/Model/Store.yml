@@ -3,6 +3,10 @@ fields:
     class: 'Store'
     image: 'st'
     columns:
+        name:
+          type: word
+          unique: true
+          skip: true
         id_country:
           relation: Country
         id_state:
@@ -23,6 +27,16 @@ fields:
           type: email
         active:
           value: 1
+fields_lang:
+    columns:
+        name:
+          type: word
+        address1:
+          type: address
+        address2:
+          value: ''
+        hours:
+          value: '[["09:00AM - 07:00PM"],["09:00AM - 07:00PM"],["09:00AM - 07:00PM"],["09:00AM - 07:00PM"],["09:00AM - 07:00PM"],["10:00AM - 04:00PM"],["10:00AM - 04:00PM"]]'
 
 
 

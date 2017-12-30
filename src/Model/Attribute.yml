@@ -6,7 +6,14 @@ fields:
           type: words
           args:
             - 2 #nb words
+          skip: true
         id_attribute_group:
           relation: AttributeGroup
         color:
           type: hexColor
+fields_lang:
+    columns:
+        name:
+          type: words
+          args:
+            - 2 #nb words

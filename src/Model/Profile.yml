@@ -5,10 +5,18 @@ fields:
     columns:
         name:
           type: word
+          skip: true
+fields_lang:
+    columns:
+        name:
+          type: word
 entities:
     Logistician:
-      name: Logistician
+      fields_lang:
+        name: Logistician
     Translator:
-      name: Translator
+      fields_lang:
+        name: Translator
     Salesman:
-      name: Salesman
+      fields_lang:
+        name: Salesman

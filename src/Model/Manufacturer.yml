@@ -11,3 +11,19 @@ fields:
           type: boolean
           args:
             - 95 # probability of getting a true for this param
+fields_lang:
+    columns:
+        description:
+          type: words
+          args:
+            - 3
+        short_description:
+          type: words
+          args:
+            - 2
+        meta_title:
+          type: sentence
+        meta_keywords:
+          type: words
+          args:
+           - 3

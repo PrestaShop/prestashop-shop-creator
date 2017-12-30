@@ -7,7 +7,14 @@ fields:
           type: words
           args:
             - 2 #nb words
+          skip: true
         active:
           type: boolean
           args:
             - 95 # probability of getting a true for this param
+fields_lang:
+    columns:
+        name:
+          type: words
+          args:
+            - 2 #nb words

@@ -34,3 +34,7 @@ parameters:
     order_carriers: 100
     order_details: 100
     stores: 100
+    profiles: 10
+    langs:
+        - fr_FR
+        - en_US

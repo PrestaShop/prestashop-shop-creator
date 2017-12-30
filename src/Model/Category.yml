@@ -1,12 +1,14 @@
 fields:
     id: 'name'
     class: 'Category'
-    sql: 'a.id_category >= 2'
+    image: 'c'
+    sql: 'a.id_category > 2'
     columns:
         name:
           type: word
           args:
             - 10 #nb chars
+          skip: true
         id_parent:
           relation: Category
         active:
@@ -14,11 +16,20 @@ fields:
           args:
             - 90 # probability of getting a true for this param
         is_root_category:
-          type: boolean
+          value: 0
+fields_lang:
+    id_shop: 1
+    columns:
+        description:
+          type: text
+        link_rewrite:
+          type: word
           args:
-            - 50 # probability of getting a true for this param
+            - 10
 entities:
-    Root:
-        id_parent: 0
+    Home:
+      fields:
+        id_parent: Root
         active: 1
-        is_root_category: false
+        is_root_category: true
+      skip: true

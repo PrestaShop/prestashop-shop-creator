@@ -8,3 +8,7 @@ fields:
           args:
            - 1
            - 100
+fields_lang:
+    columns:
+        name:
+          type: word

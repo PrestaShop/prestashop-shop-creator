@@ -4,6 +4,7 @@ fields:
     columns:
         name:
           type: md5
+          skip: true
         id_supplier:
           relation: Supplier
         id_manufacturer:
@@ -96,3 +97,19 @@ fields:
           value: 0
         advanced_stock_management:
           value: 0
+fields_lang:
+    id_shop: 1
+    columns:
+        name:
+          type: md5
+        description:
+          type: sentence
+        description_short:
+          type: sentence
+          args:
+            - 4
+        link_rewrite:
+          type: slug
+        available_now:
+          value: In stock
+

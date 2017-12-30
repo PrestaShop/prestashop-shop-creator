@@ -44,7 +44,8 @@ class XMLGeneratorService
                 $entityModel,
                 $configuration[$configKey],
                 $relations,
-                $relationList
+                $relationList,
+                $configuration['langs']
             );
             $entity->create();
             $entity->save($outputPath);

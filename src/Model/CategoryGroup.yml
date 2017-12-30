@@ -1,6 +1,5 @@
 fields:
     primary: 'id_category, id_group'
-    sql: 'a.id_category > 1'
     columns:
         id:
           type: md5

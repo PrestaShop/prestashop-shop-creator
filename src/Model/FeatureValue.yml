@@ -5,9 +5,15 @@ fields:
         value:
           type: word
           unique: true
+          skip: true
         name:
           relation: Feature
         custom:
           type: boolean
           args:
             - 50
+fields_lang:
+    columns:
+        value:
+          type: word
+          unique: true

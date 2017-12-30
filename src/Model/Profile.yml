@@ -5,7 +5,7 @@ fields:
     columns:
         name:
           type: word
-          skip: true
+          hidden: true
 fields_lang:
     columns:
         name:

@@ -2,13 +2,16 @@ fields:
     id: 'name'
     class: 'Category'
     image: 'c'
+    image_width: 141
+    image_height: 180
+    image_category: abstract
     sql: 'a.id_category > 2'
     columns:
         name:
           type: word
           args:
             - 10 #nb chars
-          skip: true
+          hidden: true
         id_parent:
           relation: Category
         active:
@@ -20,6 +23,10 @@ fields:
 fields_lang:
     id_shop: 1
     columns:
+        name:
+          type: word
+          args:
+            - 10 #nb chars
         description:
           type: text
         link_rewrite:
@@ -32,4 +39,4 @@ entities:
         id_parent: Root
         active: 1
         is_root_category: true
-      skip: true
+      hidden: true

@@ -2,6 +2,7 @@ fields:
     id: 'name'
     class: 'Manufacturer'
     image: 'm'
+    image_category: business
     columns:
         name:
           type: words

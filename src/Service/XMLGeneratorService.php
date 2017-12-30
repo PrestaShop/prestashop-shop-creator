@@ -20,7 +20,6 @@ class XMLGeneratorService
      */
     public static function createXML($configuration)
     {
-        $outputPath = __DIR__.'/../../generated_data';
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/../Model');
         $relations = self::initializeDefaultData();
@@ -48,7 +47,7 @@ class XMLGeneratorService
                 $configuration['langs']
             );
             $entity->create();
-            $entity->save($outputPath);
+            $entity->save();
             $relations = $entity->getRelations();
             $relationList = $entity->getRelationList();
 

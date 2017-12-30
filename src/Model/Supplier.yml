@@ -2,12 +2,13 @@ fields:
     id: 'name'
     class: 'Supplier'
     image: 'su'
+    image_category: business
     columns:
         name:
           type: words
           args:
             - 2 #nb words
-          skip: true
+          hidden: true
         active:
           type: boolean
           args:

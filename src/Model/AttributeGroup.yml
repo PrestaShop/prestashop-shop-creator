@@ -6,7 +6,7 @@ fields:
           type: words
           args:
             - 2 #nb words
-          skip: true
+          hidden: true
         group_type:
           type: randomElement
           args:

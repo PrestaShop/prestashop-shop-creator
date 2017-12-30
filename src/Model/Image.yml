@@ -2,11 +2,14 @@ fields:
     id: 'legend'
     class: 'Image'
     image: 'p'
+    image_width: 800
+    image_height: 800
+    image_category: fashion
     columns:
         legend:
           type: md5
           unique: true
-          skip: true
+          hidden: true
         id_product:
           relation: Product
           unique: true

@@ -47,6 +47,15 @@ class EntityGenerator
     /** @var string img path */
     protected $imgPath = '';
 
+    /** @var int */
+    protected $imgWidth = 200;
+
+    /** @var int */
+    protected $imgHeight = 200;
+
+    /** @var string the category of image we want to generate */
+    protected $imgCategory = null;
+
     /** @var string sql conditions to add to debug ouput */
     protected $sql = '';
 
@@ -86,6 +95,15 @@ class EntityGenerator
         }
         if (isset($fields['id'])) {
             $this->id = $fields['id'];
+        }
+        if (isset($fields['image_width'])) {
+            $this->imgWidth = $fields['image_width'];
+        }
+        if (isset($fields['image_height'])) {
+            $this->imgHeight = $fields['image_height'];
+        }
+        if (isset($fields['image_category'])) {
+            $this->imgCategory = $fields['image_category'];
         }
         if (isset($fields['class'])) {
             $this->class = $fields['class'];
@@ -141,14 +159,16 @@ class EntityGenerator
         $this->addEntityData();
     }
 
-    public function save($outputPath)
+    public function save()
     {
+        $outputPath = __DIR__.'/../../generated_data';
         // beautify the output
         $dom = dom_import_simplexml($this->xml)->ownerDocument;
         $dom->preserveWhiteSpace = false;
         $dom->formatOutput = true;
         $output = $dom->saveXML();
-        file_put_contents($outputPath.'/'.$this->entityElementName.'.xml', $output);
+        @mkdir($outputPath.'/data/', 0777, true);
+        file_put_contents($outputPath.'/data/'.$this->entityElementName.'.xml', $output);
         if ($this->hasLang) {
             foreach($this->xmlLang as $lang => $xmlLang) {
                 $domLang = dom_import_simplexml($xmlLang)->ownerDocument;
@@ -300,6 +320,15 @@ class EntityGenerator
 
         if ($idValue !== null) {
             $this->relations[$this->entityElementName][] = $child;
+            if ($this->imgPath) {
+                @mkdir(__DIR__.'/../../generated_data/img/'.$this->imgPath, 0777, true);
+                $this->fakerGenerator->image(
+                    __DIR__.'/../../generated_data/img/'.$this->imgPath,
+                    $this->imgWidth,
+                    $this->imgHeight,
+                    $this->imgCategory
+                );
+            }
         }
 
         return $idValue;
@@ -425,7 +454,7 @@ class EntityGenerator
                 $idValue = $value;
             }
         }
-        if (!array_key_exists('skip', $fieldDescription) || $fieldDescription['skip'] == false) {
+        if (!array_key_exists('hidden', $fieldDescription) || $fieldDescription['hidden'] == false) {
             $this->addAttribute($element, $fieldName, $value);
         }
 
@@ -546,7 +575,7 @@ class EntityGenerator
     {
         if (array_key_exists('entities', $this->entityModel)) {
             foreach ($this->entityModel['entities'] as $id => $fields) {
-                if (!empty($fields) && !array_key_exists('skip', $fields)) {
+                if (!empty($fields) && !array_key_exists('hidden', $fields)) {
                     $child = $element->addChild($this->entityElementName);
                 } else {
                     $child = new \SimpleXMLElement('<'.$this->entityElementName.'></'.$this->entityElementName.'>');
@@ -578,7 +607,7 @@ class EntityGenerator
      */
     private function addCustomLangEntityData($id, $fields, $langElements)
     {
-        if (empty($fields) || array_key_exists('skip', $fields)) {
+        if (empty($fields) || array_key_exists('hidden', $fields)) {
             return;
         }
 
@@ -620,7 +649,7 @@ class EntityGenerator
                     $this->addField($child, $subkey, $subvalue);
                 }
             } else {
-                if (!array_key_exists('skip', $fieldDescription) || $fieldDescription['skip'] == false) {
+                if (!array_key_exists('hidden', $fieldDescription) || $fieldDescription['hidden'] == false) {
                     $this->addField($child, $fieldName, $fieldDescription);
                 }
             }

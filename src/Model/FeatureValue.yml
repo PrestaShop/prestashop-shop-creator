@@ -5,7 +5,7 @@ fields:
         value:
           type: word
           unique: true
-          skip: true
+          hidden: true
         name:
           relation: Feature
         custom:

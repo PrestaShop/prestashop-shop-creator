@@ -2,11 +2,12 @@ fields:
     id: 'name'
     class: 'Store'
     image: 'st'
+    image_category: business
     columns:
         name:
           type: word
           unique: true
-          skip: true
+          hidden: true
         id_country:
           relation: Country
         id_state:

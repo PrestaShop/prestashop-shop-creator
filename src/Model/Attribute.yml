@@ -6,7 +6,7 @@ fields:
           type: words
           args:
             - 2 #nb words
-          skip: true
+          hidden: true
         id_attribute_group:
           relation: AttributeGroup
         color:

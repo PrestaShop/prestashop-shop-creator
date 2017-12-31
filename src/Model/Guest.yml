@@ -2,8 +2,7 @@ fields:
     class: 'Guest'
     columns:
         id:
-          type: md5
-          unique: true
+          type: increment
         id_operating_system:
           relation: OperatingSystem
         id_web_browser:

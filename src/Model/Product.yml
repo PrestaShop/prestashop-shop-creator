@@ -1,10 +1,8 @@
 fields:
-    id: 'name'
     class: 'Product'
     columns:
-        name:
-          type: md5
-          hidden: true
+        id:
+          type: increment
         id_supplier:
           relation: Supplier
         id_manufacturer:
@@ -101,7 +99,9 @@ fields_lang:
     id_shop: 1
     columns:
         name:
-          type: md5
+          type: words
+          args:
+            - 6
         description:
           type: sentence
         description_short:

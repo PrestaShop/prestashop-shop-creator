@@ -3,8 +3,7 @@ fields:
     sql: 'a.id_carrier > 1'
     columns:
         id:
-          type: md5
-          unique: true
+          type: increment
         id_carrier:
           relation: Carrier
         id_zone:

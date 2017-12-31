@@ -2,7 +2,7 @@ fields:
     class: 'Feature'
     columns:
         id:
-          type: word
+          type: increment
         position:
           type: numberBetween
           args:
@@ -12,3 +12,4 @@ fields_lang:
     columns:
         name:
           type: word
+          unique: true

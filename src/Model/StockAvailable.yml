@@ -3,7 +3,7 @@ fields:
     class: 'StockAvailable'
     columns:
         id_stock_available:
-          type: md5
+          type: increment
           unique: true
         id_product:
           relation: Product

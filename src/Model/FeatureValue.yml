@@ -1,12 +1,9 @@
 fields:
-    id: 'value'
     class: 'FeatureValue'
     columns:
-        value:
-          type: word
-          unique: true
-          hidden: true
-        name:
+        id:
+          type: increment
+        id_feature:
           relation: Feature
         custom:
           type: boolean

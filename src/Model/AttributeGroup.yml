@@ -1,12 +1,8 @@
 fields:
-    id: 'name'
     class: 'AttributeGroup'
     columns:
-        name:
-          type: words
-          args:
-            - 2 #nb words
-          hidden: true
+        id:
+          type: increment
         group_type:
           type: randomElement
           args:

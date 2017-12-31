@@ -5,7 +5,7 @@ fields:
           relation: Orders
         id_order_invoice:
           value: 0
-        id_wharehouse:
+        id_warehouse:
           value: 0
         id_shop:
           value: 1

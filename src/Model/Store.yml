@@ -21,9 +21,9 @@ fields:
         longitude:
           type: longitude
         phone:
-          type: phoneNumber
+          value: ''
         fax:
-          type: phoneNumber
+          value: ''
         email:
           type: email
         active:

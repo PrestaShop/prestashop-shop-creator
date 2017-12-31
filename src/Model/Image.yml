@@ -1,21 +1,18 @@
 fields:
-    id: 'legend'
+    primary: 'id_product'
     class: 'Image'
     image: 'p'
     image_width: 800
     image_height: 800
     image_category: fashion
     columns:
-        legend:
-          type: md5
-          unique: true
-          hidden: true
+        id:
+          type: increment
         id_product:
           relation: Product
-          unique: true
         cover:
           value: 1
 fields_lang:
     columns:
         legend:
-          type: md5
+          type: sentence

@@ -3,11 +3,9 @@ fields:
     id: 'id_order'
     columns:
         id_order:
-          type: md5
-          unique: true
+          type: increment
         name:
-          type: md5
-          unique: true
+          type: word
         id_shop_group:
           value: 1
         id_shop:
@@ -87,3 +85,17 @@ fields:
           value: '0000-00-00 00:00:00'
         valid:
           value: 0
+        payment:
+          type: randomElement
+          args:
+            -
+              - Payment by check
+              - Bank wire
+        module:
+          type: randomElement
+          args:
+            -
+              - ps_checkpayment
+              - ps_wirepayment
+        gift_message:
+          value: ''

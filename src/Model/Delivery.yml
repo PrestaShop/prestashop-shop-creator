@@ -2,7 +2,7 @@ fields:
     class: 'Delivery'
     columns:
         id:
-          type: md5
+          type: increment
         id_shop:
           value: ''
         id_shop_group:

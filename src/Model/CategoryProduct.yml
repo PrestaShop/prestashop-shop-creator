@@ -2,8 +2,7 @@ fields:
     primary: 'id_category, id_product'
     columns:
         id:
-          type: md5
-          unique: true
+          type: increment
         id_category:
           relation: Category
         id_product:

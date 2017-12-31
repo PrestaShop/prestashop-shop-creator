@@ -2,7 +2,7 @@ fields:
     class: 'Connection'
     columns:
         id:
-          type: md5
+          type: increment
         id_guest:
           relation: Guest
         id_page:
@@ -10,7 +10,9 @@ fields:
           args:
             - 2
         ip_address:
-          type: ipv4
+          type: randomNumber
+          args:
+            - 6
         http_referer:
           type: url
         id_shop_group:

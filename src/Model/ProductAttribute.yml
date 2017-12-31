@@ -2,8 +2,7 @@ fields:
     class: 'Combination'
     columns:
         id:
-          type: md5
-          unique: true
+          type: increment
         id_product:
           relation: Product
         reference:
@@ -11,9 +10,9 @@ fields:
         supplier_reference:
           value: ''
         ean13:
-          value: ean13
+          type: ean13
         upc:
-          value: ean8
+          type: ean8
         wholesale_price:
           value: 0
         price:

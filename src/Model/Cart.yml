@@ -2,8 +2,7 @@ fields:
     class: 'Cart'
     columns:
         id:
-          type: md5
-          unique: true
+          type: increment
         id_carrier:
           relation: Carrier
         delivery_option:

@@ -2,7 +2,7 @@ fields:
     class: 'RangePrice'
     columns:
         id:
-          type: md5
+          type: increment
         id_carrier:
           relation: Carrier
         delimiter1:

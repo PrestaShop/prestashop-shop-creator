@@ -84,14 +84,18 @@ class EntityGenerator
      */
     public function __construct($entityElementName, $entityModel, $nbEntities, $relations, $relationList, $langs)
     {
-        echo 'Generating '.$entityElementName." entities\n";
-        $this->fakerGenerator = Factory::create();
+        $this->fakerGenerator = Factory::create('fr_FR');
         $this->nbEntities = $nbEntities;
         $this->entityModel = $entityModel;
         $this->relationList = $relationList;
         $fields = $this->entityModel['fields'];
         if (isset($fields['primary'])) {
             $this->primary = $fields['primary'];
+        }
+        if (!$this->primary) {
+            echo 'Generating ' . $nbEntities . ' ' . $entityElementName . " entities\n";
+        } else {
+            echo 'Generating ' . $entityElementName . " entities\n";
         }
         if (isset($fields['id'])) {
             $this->id = $fields['id'];
@@ -293,6 +297,12 @@ class EntityGenerator
             if ($fieldName === 'exclusive_fields') {
                 // select randomly one of the field
                 $fieldName = array_rand($fieldDescription);
+                // and set the other fields to ''
+                foreach ($fieldDescription as $fieldN => $fieldDesc) {
+                    if ($fieldN !== $fieldName) {
+                        $this->addValueAttribute($child, $fieldN, '');
+                    }
+                }
                 $fieldDescription = $fieldDescription[$fieldName];
             }
             if (array_key_exists('relation', $fieldDescription)) {
@@ -632,12 +642,14 @@ class EntityGenerator
     private function addFieldsDescription()
     {
         $child = $this->xml->addChild('fields');
-        if ($this->id) {
-            $child->addAttribute('id', $this->id);
-        } else {
+        if ($this->primary) {
             $child->addAttribute('primary', $this->primary);
+        } elseif ($this->id && $this->id !== 'id') {
+            $child->addAttribute('id', $this->id);
         }
-        $child->addAttribute('class', $this->class);
+        if ($this->class) {
+            $child->addAttribute('class', $this->class);
+        }
         if ($this->sql) {
             $child->addAttribute('sql', $this->sql);
         }
@@ -650,7 +662,7 @@ class EntityGenerator
                 foreach ($fieldDescription as $subkey => $subvalue) {
                     $this->addField($child, $subkey, $subvalue);
                 }
-            } else {
+            } else if ($fieldName !== 'id') {
                 if (!array_key_exists('hidden', $fieldDescription) || $fieldDescription['hidden'] == false) {
                     $this->addField($child, $fieldName, $fieldDescription);
                 }

@@ -56,9 +56,9 @@ The model file is in yml format, and contains three main section:
             id_warehouse:
               value: 0
             alias:
-              type: word
+              type: words
               args:
-                - 10
+                - 10 #nb words
             name:
               type: word
               args:
@@ -67,27 +67,29 @@ The model file is in yml format, and contains three main section:
             price:
               type: numberBetween
               args:
-                - 1
-                - 1000
+                - 1 #start
+                - 1000 #stop
             wholesale_price:
               value: '{price}/100'              
         ```
         1. <u>the 'type' property</u>
             
-            This field allows to generate specific property. 'increment' is a simple autoincrement, another types
-            available are described from the faker module : https://github.com/fzaninotto/Faker . If you need to pass
-            an argument to a faker function, just add the args: tag like in the above example.
+            This properly allows to generate random value. 'increment' is a simple autoincrement, another types
+            available are described from the faker module: https://github.com/fzaninotto/Faker 
+            
+            If you need to pass an argument to a faker function, just add the 'args:' tag like in the above example.
+            
             If you want to generate a field, but hide it from the final result, add the "hidden: true" property
             (only useful if the field in question is referenced as an "id", but only present in the field_lang)
             
         2. <u>the 'relation' property</u>
         
-            The relation field indicates it should generates the value from an another entity (it will use a value
+            The 'relation' property indicates it should generates the value from an another entity (it will use a value
             from the 'id' of the other entity)       
             
         3. <u>the 'value' property</u>
                          
-            The value field allow to set a specific value for the column. It could also be a reference to another
+            The 'value' property sets a specific value for the column. It could also be a reference to another
             column, or a mathematical expression, like the "wholesale_price" in the example above.
             
         4. <u>the 'exclusive_fields' property</u>
@@ -116,8 +118,8 @@ The model file is in yml format, and contains three main section:
     
     4. <i><b>id</b></i>
     
-        The id tag which field inside the 'columns' description should be considered as a the reference unique field for 
-        relation resolution.
+        The 'id' tag sets which field inside the 'columns' property should be considered as a the reference unique field 
+        for relation resolution.
         
         Example:
         ```yaml
@@ -126,8 +128,8 @@ The model file is in yml format, and contains three main section:
      
     5. <i><b>primary</b></i>
     
-        When the primary tag is used, the script iterate over all the existing values (the fields are usually
-        relations from other entities)
+        When the primary tag is used, the script iterate over all the existing values (the fields in the 'primary' tag
+        should be described as relations to other entities)
         
         Example:
         ```yaml
@@ -200,8 +202,31 @@ The model file is in yml format, and contains three main section:
 3. <b>The entities section (optional)</b>
 
     This section describes any custom entities we want to create (no random generation for those one)
+    The key of each entry used will be used as the 'id' of the entity
 
-
+    Example:
+    ```yaml
+    entities:
+        My_carrier:
+            fields:
+                id_reference: 2
+                active: 1
+                shipping_handling: 1
+                range_behaviour: 0
+                is_free: 0
+                shipping_external: 0
+                need_range: 0
+                shipping_method: 0
+                max_width: 0
+                max_height: 0
+                max_depth: 0
+                max_weight: 0
+                grade: 0
+                name: My carrier
+                url: ~
+            fields_lang:
+                delay: Delivery next day!
+    ```
 
 
 Default xml data

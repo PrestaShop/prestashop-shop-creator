@@ -37,7 +37,8 @@ The model file is in yml format, and contains three main section:
 
 1. <b>The fields section (required)</b>
 
-    This section describes the list of fields of an entity (not language related)
+    This section describes the list of fields of an entity (not language related).
+    
     Available options in this section:
     
     1. <i><b>columns (required) </b></i>
@@ -179,7 +180,8 @@ The model file is in yml format, and contains three main section:
 
 2. <b>The fields_lang section (optional)</b>
 
-    This section describes the list of fields present in the language related part of the entity (if any)
+    This section describes the list of fields present in the language related part of the entity (if any).
+    
     You can set an optional 'id_shop' tag and a 'columns' property which support the type same 'value' and 'type' than the 
     'fields' section.
     
@@ -206,7 +208,8 @@ The model file is in yml format, and contains three main section:
 
 3. <b>The entities section (optional)</b>
 
-    This section describes any custom entities we want to create (no random generation for those one)
+    This section describes any custom entities we want to create (no random generation for those one).
+    
     The key of each entry used will be used as the 'id' of the entity
 
     Example:
@@ -238,6 +241,7 @@ Default xml data
 --------
 If you want to use a default xml file instead of generating one using the entity model, just put it in the default_data 
 directory.
+
 It will be automatically parsed by the script and will be taken into account for the existing entity relations.
 
 

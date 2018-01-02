@@ -127,7 +127,7 @@ class EntityGenerator
         );
         if (array_key_exists('fields_lang', $this->entityModel)) {
             $this->hasLang = true;
-            foreach($langs as $lang) {
+            foreach ($langs as $lang) {
                 $langLocale = explode('_', $lang);
                 $this->localeFakerGenerator[$langLocale[0]] = Factory::create($lang);
                 $this->xmlLang[$langLocale[0]] = new \SimpleXMLElement(
@@ -174,7 +174,7 @@ class EntityGenerator
         @mkdir($outputPath.'/data/', 0777, true);
         file_put_contents($outputPath.'/data/'.$this->entityElementName.'.xml', $output);
         if ($this->hasLang) {
-            foreach($this->xmlLang as $lang => $xmlLang) {
+            foreach ($this->xmlLang as $lang => $xmlLang) {
                 $domLang = dom_import_simplexml($xmlLang)->ownerDocument;
                 $domLang->preserveWhiteSpace = false;
                 $domLang->formatOutput = true;
@@ -354,14 +354,14 @@ class EntityGenerator
     private function generateLangEntityData($idValue)
     {
         $childLangs = [];
-        foreach($this->xmlLang as $lang => $xmlLang) {
+        foreach ($this->xmlLang as $lang => $xmlLang) {
             $childLangs[$lang] = $xmlLang->addChild($this->entityElementName);
             if (array_key_exists('id_shop', $this->entityModel['fields_lang'])) {
                 $childLangs[$lang]->addAttribute('id_shop', $this->entityModel['fields_lang']['id_shop']);
             }
         }
 
-        foreach($childLangs as $locale => $child) {
+        foreach ($childLangs as $locale => $child) {
             $this->addValueAttribute($child, 'id', $idValue);
             foreach ($this->entityModel['fields_lang']['columns'] as $fieldName => $fieldDescription) {
                 if (array_key_exists('value', $fieldDescription)) {
@@ -421,8 +421,7 @@ class EntityGenerator
         $fieldName,
         $fieldDescription,
         $fakerGenerator = null
-    )
-    {
+    ) {
         $idValue = null;
         // no custom generator, use the default one
         if ($fakerGenerator === null) {
@@ -572,7 +571,7 @@ class EntityGenerator
      */
     private function addLangAttribute($elements, $fieldName, $value)
     {
-        foreach($elements as $key => $element) {
+        foreach ($elements as $key => $element) {
             $element->addAttribute($fieldName, $value);
         }
     }
@@ -623,7 +622,7 @@ class EntityGenerator
             return;
         }
 
-        foreach($langElements as $key => $langElement) {
+        foreach ($langElements as $key => $langElement) {
             $langElements[$key] = $langElement->addChild($this->entityElementName);
         }
 
@@ -662,7 +661,7 @@ class EntityGenerator
                 foreach ($fieldDescription as $subkey => $subvalue) {
                     $this->addField($child, $subkey, $subvalue);
                 }
-            } else if ($fieldName !== 'id') {
+            } elseif ($fieldName !== 'id') {
                 if (!array_key_exists('hidden', $fieldDescription) || $fieldDescription['hidden'] == false) {
                     $this->addField($child, $fieldName, $fieldDescription);
                 }

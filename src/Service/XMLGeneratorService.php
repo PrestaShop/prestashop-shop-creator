@@ -81,29 +81,29 @@ class XMLGeneratorService
         }
 
         do {
-            $current = (isset($sort_entities)) ? $sort_entities : array();
-            $sort_entities = array();
+            $current = (isset($sortEntities)) ? $sortEntities : array();
+            $sortEntities = array();
             foreach ($entities as $key => $entity) {
                 if (isset($dependencies[$entity])) {
                     $min = count($entities) - 1;
                     foreach ($dependencies[$entity] as $item) {
-                        if (($key = array_search($item, $sort_entities)) !== false) {
+                        if (($key = array_search($item, $sortEntities)) !== false) {
                             $min = min($min, $key);
                         }
                     }
                     if ($min == 0) {
-                        array_unshift($sort_entities, $entity);
+                        array_unshift($sortEntities, $entity);
                     } else {
-                        array_splice($sort_entities, $min, 0, array($entity));
+                        array_splice($sortEntities, $min, 0, array($entity));
                     }
                 } else {
-                    $sort_entities[] = $entity;
+                    $sortEntities[] = $entity;
                 }
             }
-            $entities = $sort_entities;
-        } while ($current != $sort_entities);
+            $entities = $sortEntities;
+        } while ($current != $sortEntities);
 
-        return $sort_entities;
+        return $sortEntities;
     }
 
     /**

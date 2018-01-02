@@ -27,7 +27,8 @@ you want to generate
 
 Entity Model syntax
 --------
-Each entity model is described in the src/Model directory
+Each entity model is described in the src/Model directory.
+
 The model file is in yml format, and contains three main section:
 
 1. <b>The fields section (required)</b>
@@ -175,7 +176,7 @@ The model file is in yml format, and contains three main section:
 2. <b>The fields_lang section (optional)</b>
 
     This section describes the list of fields present in the language related part of the entity (if any)
-    You can set an optional id_shop tag and a columns property which support the type same 'value' and 'type' than the 
+    You can set an optional 'id_shop' tag and a 'columns' property which support the type same 'value' and 'type' than the 
     'fields' section.
     
     Example:

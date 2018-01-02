@@ -180,7 +180,10 @@ class EntityGenerator
                 $domLang->formatOutput = true;
                 $outputLang = $domLang->saveXML();
                 @mkdir($outputPath . '/langs/' . $lang . '/data/', 0777, true);
-                file_put_contents($outputPath . '/langs/' . $lang . '/data/' . $this->entityElementName . '.xml', $outputLang);
+                file_put_contents(
+                    $outputPath . '/langs/' . $lang . '/data/' . $this->entityElementName . '.xml',
+                    $outputLang
+                );
             }
         }
     }
@@ -306,7 +309,8 @@ class EntityGenerator
                 $fieldDescription = $fieldDescription[$fieldName];
             }
             if (array_key_exists('relation', $fieldDescription)) {
-                $this->relationList[$this->entityElementName][$fieldName] = Inflector::tableize($fieldDescription['relation']);
+                $this->relationList[$this->entityElementName][$fieldName] =
+                    Inflector::tableize($fieldDescription['relation']);
             } elseif (array_key_exists('value', $fieldDescription)) {
                 $this->addValueAttribute($child, $fieldName, $fieldDescription['value']);
             } elseif (array_key_exists('type', $fieldDescription)) {

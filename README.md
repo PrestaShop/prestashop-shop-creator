@@ -29,6 +29,10 @@ Entity Model syntax
 --------
 Each entity model is described in the src/Model directory.
 
+If you want to add a new Model, create of file with the same name the class it's related to, and an entry in the 
+app/config/config.yml.dist file (the name should be the pluralized & tablized version of the model name).
+
+
 The model file is in yml format, and contains three main section:
 
 1. <b>The fields section (required)</b>

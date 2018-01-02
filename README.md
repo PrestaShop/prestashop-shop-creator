@@ -2,7 +2,7 @@ About PrestaShop Shop Generator
 --------
 
 The shop generator generates a list of folders & xml files into 'generated_data' dir which should be copied in the 
-/install/fixtures/fashion directory of PrestaShop, to generate at the installation a shop initialized with the wanted 
+/install/fixtures/fashion directory of PrestaShop, to generate at the installation a shop initialized with the specified 
 number of entities.
 
 

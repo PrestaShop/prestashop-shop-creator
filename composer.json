@@ -1,0 +1,36 @@
+{
+  "name": "Prestashop/ShopGenerator",
+  "require": {
+    "fzaninotto/faker": "^1.7",
+    "symfony/console": "^3.4",
+    "symfony/yaml": "^3.4",
+    "incenteev/composer-parameter-handler": "^2.1",
+    "Doctrine/Inflector": "^1.2",
+    "Symfony/Finder": "^3.4",
+    "ext-simplexml": "^7.0",
+    "mossadal/math-parser": "^1.3",
+    "Symfony/Filesystem": "^4.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~5.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "ShopGenerator\\": "src/"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
+    ],
+    "post-update-cmd": [
+      "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
+    ]
+  },
+  "extra": {
+    "incenteev-parameters": {
+      "file": "app/config/config.yml",
+      "parameter-key": "parameters"
+    }
+  }
+}

@@ -74,6 +74,9 @@ class EntityGenerator
     /** @var array list of values associated with each fields for a given entity */
     protected $fieldValues = [];
 
+    /** @var array Array of already generated img to be reused to speed up the generation process */
+    protected $generatedImgs = [];
+
     /**
      * EntityGenerator constructor.
      *
@@ -336,14 +339,29 @@ class EntityGenerator
             $this->relations[$this->entityElementName][] = $child;
             if ($this->imgPath) {
                 @mkdir(__DIR__.'/../../generated_data/img/'.$this->imgPath, 0777, true);
-                $filepath = $this->fakerGenerator->image(
-                    __DIR__.'/../../generated_data/img/'.$this->imgPath,
-                    $this->imgWidth,
-                    $this->imgHeight,
-                    $this->imgCategory
-                );
-                copy($filepath, __DIR__.'/../../generated_data/img/'.$this->imgPath.'/'.$idValue.'.jpg');
-                unlink($filepath);
+                // 50 generated img is enough
+                if (!array_key_exists($this->imgPath, $this->generatedImgs)
+                    || count($this->generatedImgs[$this->imgPath]) < 50) {
+                    $filepath = $this->fakerGenerator->image(
+                        __DIR__ . '/../../generated_data/img/' . $this->imgPath,
+                        $this->imgWidth,
+                        $this->imgHeight,
+                        $this->imgCategory
+                    );
+                    $deleteSrc = true;
+                } else {
+                    // reused already generated imgs
+                    $filepath = $this->generatedImgs[$this->imgPath][array_rand($this->generatedImgs[$this->imgPath])];
+                    // and keep the source!
+                    $deleteSrc = false;
+                }
+                $newImgPath = __DIR__.'/../../generated_data/img/'.$this->imgPath.'/'.$idValue.'.jpg';
+                if (copy($filepath, $newImgPath)) {
+                    $this->generatedImgs[$this->imgPath][] = $newImgPath;
+                }
+                if ($deleteSrc) {
+                    @unlink($filepath);
+                }
             }
         }
 

@@ -71,32 +71,60 @@ class EntityGenerator
     /** @var array list of already generated values for the entity relations */
     protected $relationValues = [];
 
+    /** @var array the info on the parent entities which will be used to generate the current entity */
+    protected $parentEntities = [];
+
     /** @var array list of values associated with each fields for a given entity */
     protected $fieldValues = [];
 
     /** @var array Array of already generated img to be reused to speed up the generation process */
     protected $generatedImgs = [];
 
+    /** @var \SimpleXMLElement[] list of simpleXML generated entities entry  */
+    protected $entities = [];
+
     /**
      * EntityGenerator constructor.
      *
-     * @param array $entityModel
-     * @param int $nbEntities
-     * @param array $relations
-     * @param array $relationList
+     * @param string $entityElementName
+     * @param array  $entityModel
+     * @param int    $nbEntities
+     * @param array  $relations
+     * @param array  $relationList
+     * @param array  $langs
+     * @param null   $parentEntities
      */
-    public function __construct($entityElementName, $entityModel, $nbEntities, $relations, $relationList, $langs)
-    {
+    public function __construct(
+        $entityElementName,
+        $entityModel,
+        $nbEntities,
+        $relations,
+        $relationList,
+        $langs,
+        $parentEntities = null
+    ) {
         $this->fakerGenerator = Factory::create('fr_FR');
         $this->nbEntities = $nbEntities;
         $this->entityModel = $entityModel;
         $this->relationList = $relationList;
         $fields = $this->entityModel['fields'];
+        if ($parentEntities) {
+            $this->parentEntities = $parentEntities;
+        }
         if (isset($fields['primary'])) {
             $this->primary = $fields['primary'];
         }
         if (!$this->primary) {
-            echo 'Generating ' . $nbEntities . ' ' . $entityElementName . " entities\n";
+            if ($parentEntities) {
+                foreach ($parentEntities as $key => $values) {
+                    foreach ($values as $value) {
+                        echo 'Generating ' . $nbEntities . ' ' . $entityElementName . " entities using parent entity " .
+                            $key . " " . $value['id'] . "\n";
+                    }
+                }
+            } else {
+                echo 'Generating ' . $nbEntities . ' ' . $entityElementName . " entities\n";
+            }
         } else {
             echo 'Generating ' . $entityElementName . " entities\n";
         }
@@ -155,6 +183,14 @@ class EntityGenerator
     public function getRelations()
     {
         return $this->relations;
+    }
+
+    /**
+     * @return \SimpleXMLElement[]
+     */
+    public function getEntities()
+    {
+        return $this->entities;
     }
 
     /**
@@ -219,11 +255,38 @@ class EntityGenerator
             $this->walkOnRelations($child, $relations);
         } else {
             for ($i = 1; $i <= $this->nbEntities; $i++) {
-                $idValue = $this->generateEntityData($child);
-                if ($this->hasLang) {
-                    $this->generateLangEntityData($idValue);
+                if ($this->parentEntities) {
+                    foreach ($this->parentEntities as $key => $values) {
+                        foreach ($values as $value) {
+                            $this->generateEntityData($child, [$key => $value]);
+                        }
+                    }
+                } else {
+                    $this->generateEntityData($child);
                 }
             }
+        }
+    }
+
+    /**
+     * Generate main & lang xml file
+     *
+     * @param \SimpleXMLElement $child
+     * @param array $relationValues
+     *
+     * @throws RuntimeException
+     */
+    private function generateEntityData($child, $relationValues = null)
+    {
+        $entityData = $this->generateMainEntityData($child, $relationValues);
+        if (array_key_exists($this->id, $entityData)) {
+            $idValue = $entityData[$this->id];
+        } else {
+            $idValue = $entityData['id'];
+        }
+        $this->entities[] = $entityData;
+        if ($this->hasLang) {
+            $this->generateLangEntityData($idValue);
         }
     }
 
@@ -252,10 +315,7 @@ class EntityGenerator
             if (!empty($relations)) {
                 $this->walkOnRelations($child, $relations, $relationValues);
             } else {
-                $idValue = $this->generateEntityData($child, $relationValues);
-                if ($this->hasLang) {
-                    $this->generateLangEntityData($idValue);
-                }
+                $this->generateEntityData($child, $relationValues);
             }
         }
     }
@@ -293,7 +353,7 @@ class EntityGenerator
      * @return string
      * @throws RuntimeException
      */
-    private function generateEntityData(\SimpleXMLElement $element, $relationValues = null)
+    private function generateMainEntityData(\SimpleXMLElement $element, $relationValues = null)
     {
         $this->fieldValues = [];
         $child = $element->addChild($this->entityElementName);
@@ -318,7 +378,7 @@ class EntityGenerator
                 $this->addValueAttribute($child, $fieldName, $fieldDescription['value']);
             } elseif (array_key_exists('type', $fieldDescription)) {
                 $value = $this->addFakerAttribute($child, $fieldName, $fieldDescription);
-                if ($idValue === null && $value !== null) {
+                if ($idValue === null && ($fieldName === $this->id || $fieldName === 'id')) {
                     $idValue = $value;
                 }
             }
@@ -365,7 +425,7 @@ class EntityGenerator
             }
         }
 
-        return $idValue;
+        return $child;
     }
 
     /**

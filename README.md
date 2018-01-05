@@ -15,6 +15,21 @@ composer install
 ```
 This will generates a configuration file in app/config/config.yml
 
+The configuration file in app/config/config.yml contains the number of entities we want to generate, but also the 
+entity which depends on others.
+
+For example if you have:
+```yaml
+    products:
+        count: 100
+        dependencies:
+          - product_attributes
+    product_attributes: 200
+```
+
+it means 200 product_attributes for each product (so at this end 200*100 product_attributes will be generated)
+
+
 
 How to run the script
 --------

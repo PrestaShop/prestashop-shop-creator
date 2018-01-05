@@ -16,7 +16,6 @@ class XMLGeneratorService
      * @throws RuntimeException
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
-     * @throws \Symfony\Component\Yaml\Exception\ParseException
      */
     public static function createXML($configuration)
     {
@@ -24,36 +23,106 @@ class XMLGeneratorService
         $finder->files()->in(__DIR__.'/../Model');
         $relations = self::initializeDefaultData();
         $relationList = [];
+        $parentEntities = [];
 
         $fileList = self::sortModelWithDependencies($finder);
 
         foreach ($fileList as $modelName) {
+            $dependencies = [];
             $configKey = Inflector::tableize(Inflector::pluralize($modelName));
-            $entityModel = Yaml::parse(file_get_contents(__DIR__.'/../Model/'.$modelName.'.yml'));
-            if (!array_key_exists($configKey, $configuration)) {
-                if (!array_key_exists('primary', $entityModel['fields'])) {
-                    throw new RuntimeException('Missing configuration entry for key ' . $configKey);
-                } else {
-                    $configuration[$configKey] = 1;
+
+            // if the current modelName has been defined by another entity as a dependency, use their value
+            // to generate the new entity
+            if (array_key_exists($configKey, $parentEntities)) {
+                foreach ($parentEntities[$configKey] as $key => $parentEntities) {
+                    $entityXml = self::generateXML(
+                        $configKey,
+                        $modelName,
+                        $relations,
+                        $relationList,
+                        $configuration,
+                        [$key => $parentEntities]
+                    );
+
+                    $relations = $entityXml->getRelations();
+                    $relationList = $entityXml->getRelationList();
+                }
+            } else {
+                $entityXml = self::generateXML(
+                    $configKey,
+                    $modelName,
+                    $relations,
+                    $relationList,
+                    $configuration
+                );
+
+                $relations = $entityXml->getRelations();
+                $relationList = $entityXml->getRelationList();
+            }
+
+            if (array_key_exists($configKey, $configuration) && is_array($configuration[$configKey])) {
+                $dependencies = $configuration[$configKey]['dependencies'];
+            }
+
+            if (!empty($dependencies)) {
+                foreach ($dependencies as $dependency) {
+                    $parentEntities[$dependency][Inflector::tableize($modelName)] = $entityXml->getEntities();
                 }
             }
 
-            $entity = new EntityGenerator(
-                Inflector::tableize($modelName),
-                $entityModel,
-                $configuration[$configKey],
-                $relations,
-                $relationList,
-                $configuration['langs']
-            );
-            $entity->create();
-            $entity->save();
-            $relations = $entity->getRelations();
-            $relationList = $entity->getRelationList();
-
-            unset($entity);
+            unset($entityXml);
             gc_collect_cycles();
         }
+    }
+
+    /**
+     * @param string $configKey
+     * @param string $modelName
+     * @param array  $relations
+     * @param array  $relationList
+     * @param array  $configuration
+     * @param \SimpleXMLElement $parentEntities
+     *
+     * @return EntityGenerator
+     * @throws RuntimeException
+     * @throws \Symfony\Component\Yaml\Exception\ParseException
+     */
+    private static function generateXML(
+        $configKey,
+        $modelName,
+        $relations,
+        $relationList,
+        $configuration,
+        $parentEntities = null
+    ) {
+        $entityModel = Yaml::parse(file_get_contents(__DIR__.'/../Model/'.$modelName.'.yml'));
+        if (!array_key_exists($configKey, $configuration)) {
+            if (!array_key_exists('primary', $entityModel['fields'])) {
+                throw new RuntimeException('Missing configuration entry for key ' . $configKey);
+            } else {
+                $entityCount = 1;
+            }
+        } else {
+            if (is_array($configuration[$configKey])) {
+                $entityCount = $configuration[$configKey]['count'];
+            } else {
+                $entityCount = $configuration[$configKey];
+            }
+        }
+
+        $entityXml = new EntityGenerator(
+            Inflector::tableize($modelName),
+            $entityModel,
+            $entityCount,
+            $relations,
+            $relationList,
+            $configuration['langs'],
+            $parentEntities
+        );
+        $entityXml->create();
+        $entityXml->save();
+
+        return $entityXml;
     }
 
     /**
@@ -77,15 +146,15 @@ class XMLGeneratorService
                     }
                 }
             }
-            $entities[] = $modelType;
+            $parentEntities[] = $modelType;
         }
 
         do {
             $current = (isset($sortEntities)) ? $sortEntities : array();
             $sortEntities = array();
-            foreach ($entities as $key => $entity) {
+            foreach ($parentEntities as $key => $entity) {
                 if (isset($dependencies[$entity])) {
-                    $min = count($entities) - 1;
+                    $min = count($parentEntities) - 1;
                     foreach ($dependencies[$entity] as $item) {
                         if (($key = array_search($item, $sortEntities)) !== false) {
                             $min = min($min, $key);
@@ -100,7 +169,7 @@ class XMLGeneratorService
                     $sortEntities[] = $entity;
                 }
             }
-            $entities = $sortEntities;
+            $parentEntities = $sortEntities;
         } while ($current != $sortEntities);
 
         return $sortEntities;

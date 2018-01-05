@@ -15,22 +15,6 @@ composer install
 ```
 This will generates a configuration file in app/config/config.yml
 
-The configuration file in app/config/config.yml contains the number of entities we want to generate, but also the 
-entity which depends on others.
-
-For example if you have:
-```yaml
-    products:
-        count: 100
-        dependencies:
-          - product_attributes
-    product_attributes: 200
-```
-
-it means 200 product_attributes for each product (so at this end 200*100 product_attributes will be generated)
-
-
-
 How to run the script
 --------
 ```
@@ -95,7 +79,22 @@ The model file is in yml format, and contains three main section:
         ```
         1. <u>the 'type' property</u>
             
-            This properly allows to generate random value. 'increment' is a simple autoincrement, another types
+            * 'increment' is a simple autoincrement.
+            
+            * 'conditionalValue' allow to generate value depending on a condition.
+            Example:
+                ```yaml
+                default_on:
+                  type: conditionalValue
+                  args:
+                    - isNewValue({id_product}) # condition
+                    - 1 # value if condition is true
+                    - null # value if condition is false
+                ```
+             The isNewValue is a special function which checks if the value related to the field {id_product} 
+             has changed since the last time we have generated an entity.   
+            
+            * other properly value allows to generate random value. , another types
             available are described from the faker module: https://github.com/fzaninotto/Faker 
             
             If you need to pass an argument to a faker function, just add the 'args:' tag like in the above example.
@@ -106,7 +105,22 @@ The model file is in yml format, and contains three main section:
         2. <u>the 'relation' property</u>
         
             The 'relation' property indicates it should generates the value from an another entity (it will use a value
-            from the 'id' of the other entity)       
+            from the 'id' of the other entity).
+            
+            If the 'generate_all' property is used in conjunction with a relation type, it means we should use
+            all the existing relations instead of just choosing a random one. It's especially usefull if we want for
+            example generate combinations for every product in the database:
+            
+            ```yaml
+            fields:
+                class: 'Combination'
+                columns:
+                    id:
+                      type: increment
+                    id_product:
+                      relation: Product
+                      generate_all: true
+            ```
             
         3. <u>the 'value' property</u>
                          

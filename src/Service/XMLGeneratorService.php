@@ -23,52 +23,22 @@ class XMLGeneratorService
         $finder->files()->in(__DIR__.'/../Model');
         $relations = self::initializeDefaultData();
         $relationList = [];
-        $parentEntities = [];
 
         $fileList = self::sortModelWithDependencies($finder);
 
         foreach ($fileList as $modelName) {
-            $dependencies = [];
             $configKey = Inflector::tableize(Inflector::pluralize($modelName));
 
-            // if the current modelName has been defined by another entity as a dependency, use their value
-            // to generate the new entity
-            if (array_key_exists($configKey, $parentEntities)) {
-                foreach ($parentEntities[$configKey] as $key => $parentEntities) {
-                    $entityXml = self::generateXML(
-                        $configKey,
-                        $modelName,
-                        $relations,
-                        $relationList,
-                        $configuration,
-                        [$key => $parentEntities]
-                    );
+            $entityXml = self::generateXML(
+                $configKey,
+                $modelName,
+                $relations,
+                $relationList,
+                $configuration
+            );
 
-                    $relations = $entityXml->getRelations();
-                    $relationList = $entityXml->getRelationList();
-                }
-            } else {
-                $entityXml = self::generateXML(
-                    $configKey,
-                    $modelName,
-                    $relations,
-                    $relationList,
-                    $configuration
-                );
-
-                $relations = $entityXml->getRelations();
-                $relationList = $entityXml->getRelationList();
-            }
-
-            if (array_key_exists($configKey, $configuration) && is_array($configuration[$configKey])) {
-                $dependencies = $configuration[$configKey]['dependencies'];
-            }
-
-            if (!empty($dependencies)) {
-                foreach ($dependencies as $dependency) {
-                    $parentEntities[$dependency][Inflector::tableize($modelName)] = $entityXml->getEntities();
-                }
-            }
+            $relations = $entityXml->getRelations();
+            $relationList = $entityXml->getRelationList();
 
             unset($entityXml);
             gc_collect_cycles();
@@ -81,7 +51,6 @@ class XMLGeneratorService
      * @param array  $relations
      * @param array  $relationList
      * @param array  $configuration
-     * @param \SimpleXMLElement $parentEntities
      *
      * @return EntityGenerator
      * @throws RuntimeException
@@ -92,8 +61,7 @@ class XMLGeneratorService
         $modelName,
         $relations,
         $relationList,
-        $configuration,
-        $parentEntities = null
+        $configuration
     ) {
         $entityModel = Yaml::parse(file_get_contents(__DIR__.'/../Model/'.$modelName.'.yml'));
         if (!array_key_exists($configKey, $configuration)) {
@@ -103,11 +71,7 @@ class XMLGeneratorService
                 $entityCount = 1;
             }
         } else {
-            if (is_array($configuration[$configKey])) {
-                $entityCount = $configuration[$configKey]['count'];
-            } else {
-                $entityCount = $configuration[$configKey];
-            }
+            $entityCount = $configuration[$configKey];
         }
 
         $entityXml = new EntityGenerator(
@@ -116,8 +80,7 @@ class XMLGeneratorService
             $entityCount,
             $relations,
             $relationList,
-            $configuration['langs'],
-            $parentEntities
+            $configuration['langs']
         );
         $entityXml->create();
         $entityXml->save();

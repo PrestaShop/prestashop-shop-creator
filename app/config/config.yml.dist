@@ -11,10 +11,7 @@ parameters:
     profiles: 3
     specific_prices: 10000
     attribute_groups: 10
-    products:
-        count: 100
-        dependencies:
-          - product_attributes
+    products: 100
     attributes: 100
     carts: 1000
     cart_rules: 100

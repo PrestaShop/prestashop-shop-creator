@@ -80,9 +80,6 @@ class EntityGenerator
     /** @var array Array of already generated img to be reused to speed up the generation process */
     protected $generatedImgs = [];
 
-    /** @var \SimpleXMLElement[] list of simpleXML generated entities entry  */
-    protected $entities = [];
-
     /**
      * EntityGenerator constructor.
      *
@@ -92,7 +89,6 @@ class EntityGenerator
      * @param array  $relations
      * @param array  $relationList
      * @param array  $langs
-     * @param null   $parentEntities
      */
     public function __construct(
         $entityElementName,
@@ -100,14 +96,17 @@ class EntityGenerator
         $nbEntities,
         $relations,
         $relationList,
-        $langs,
-        $parentEntities = null
+        $langs
     ) {
         $this->fakerGenerator = Factory::create('fr_FR');
         $this->nbEntities = $nbEntities;
         $this->entityModel = $entityModel;
         $this->relationList = $relationList;
+        $this->relations = $relations;
         $fields = $this->entityModel['fields'];
+
+        $parentEntities = $this->extractParentEntities($entityModel);
+
         if ($parentEntities) {
             $this->parentEntities = $parentEntities;
         }
@@ -150,7 +149,6 @@ class EntityGenerator
             $this->imgPath = $fields['image'];
         }
         $this->entityElementName = $entityElementName;
-        $this->relations = $relations;
         $this->increment = 1;
         $this->xml = new \SimpleXMLElement(
             '<?xml version="1.0" encoding="UTF-8"?>'.
@@ -169,6 +167,21 @@ class EntityGenerator
         }
     }
 
+    public function extractParentEntities($entityModel)
+    {
+        $parentEntities = [];
+
+        foreach ($entityModel['fields']['columns'] as $fieldName => $fieldDescription) {
+            if (array_key_exists('generate_all', $fieldDescription)) {
+                $relation = $fieldDescription['relation'];
+                $keyName = Inflector::tableize($relation);
+                $parentEntities[$keyName] = $this->relations[Inflector::tableize($relation)];
+            }
+        }
+
+        return $parentEntities;
+    }
+
     /**
      * @return array
      */
@@ -183,14 +196,6 @@ class EntityGenerator
     public function getRelations()
     {
         return $this->relations;
-    }
-
-    /**
-     * @return \SimpleXMLElement[]
-     */
-    public function getEntities()
-    {
-        return $this->entities;
     }
 
     /**
@@ -254,14 +259,16 @@ class EntityGenerator
             }
             $this->walkOnRelations($child, $relations);
         } else {
-            for ($i = 1; $i <= $this->nbEntities; $i++) {
-                if ($this->parentEntities) {
-                    foreach ($this->parentEntities as $key => $values) {
-                        foreach ($values as $value) {
+            if ($this->parentEntities) {
+                foreach ($this->parentEntities as $key => $values) {
+                    foreach ($values as $value) {
+                        for ($i = 1; $i <= $this->nbEntities; $i++) {
                             $this->generateEntityData($child, [$key => $value]);
                         }
                     }
-                } else {
+                }
+            } else {
+                for ($i = 1; $i <= $this->nbEntities; $i++) {
                     $this->generateEntityData($child);
                 }
             }
@@ -279,12 +286,11 @@ class EntityGenerator
     private function generateEntityData($child, $relationValues = null)
     {
         $entityData = $this->generateMainEntityData($child, $relationValues);
-        if (array_key_exists($this->id, $entityData)) {
+        if (array_key_exists($this->id, (array)$entityData)) {
             $idValue = $entityData[$this->id];
         } else {
             $idValue = $entityData['id'];
         }
-        $this->entities[] = $entityData;
         if ($this->hasLang) {
             $this->generateLangEntityData($idValue);
         }
@@ -350,7 +356,7 @@ class EntityGenerator
      * @param \SimpleXMLElement $element
      * @param array             $relationValues set of values used for relation, instead of a random one
      *
-     * @return string
+     * @return \SimpleXMLElement
      * @throws RuntimeException
      */
     private function generateMainEntityData(\SimpleXMLElement $element, $relationValues = null)
@@ -359,6 +365,7 @@ class EntityGenerator
         $child = $element->addChild($this->entityElementName);
         $this->relationList[$this->entityElementName] = [];
         $idValue = null;
+        $valueAttributes = $fakerAttributes = [];
         foreach ($this->entityModel['fields']['columns'] as $fieldName => $fieldDescription) {
             if ($fieldName === 'exclusive_fields') {
                 // select randomly one of the field
@@ -372,15 +379,13 @@ class EntityGenerator
                 $fieldDescription = $fieldDescription[$fieldName];
             }
             if (array_key_exists('relation', $fieldDescription)) {
+                // relation are handled after the foreach loop to properly handle dependencies between relations
                 $this->relationList[$this->entityElementName][$fieldName] =
                     Inflector::tableize($fieldDescription['relation']);
             } elseif (array_key_exists('value', $fieldDescription)) {
-                $this->addValueAttribute($child, $fieldName, $fieldDescription['value']);
+                $valueAttributes[$fieldName] = $fieldDescription['value'];
             } elseif (array_key_exists('type', $fieldDescription)) {
-                $value = $this->addFakerAttribute($child, $fieldName, $fieldDescription);
-                if ($idValue === null && ($fieldName === $this->id || $fieldName === 'id')) {
-                    $idValue = $value;
-                }
+                $fakerAttributes[$fieldName] = $fieldDescription;
             }
         }
         // add all the relations
@@ -393,6 +398,19 @@ class EntityGenerator
                 $this->entityElementName,
                 (array_key_exists('nullable', $fieldDescription) && $fieldDescription['nullable'] == true)
             );
+        }
+
+        // then add faker attributes
+        foreach ($fakerAttributes as $fieldName => $fieldDescription) {
+            $value = $this->addFakerAttribute($child, $fieldName, $fieldDescription);
+            if ($idValue === null && ($fieldName === $this->id || $fieldName === 'id')) {
+                $idValue = $value;
+            }
+        }
+
+        // and at the end, handle the value attributes
+        foreach ($valueAttributes as $fieldName => $value) {
+            $this->addValueAttribute($child, $fieldName, $value);
         }
 
         if ($idValue !== null) {
@@ -461,13 +479,25 @@ class EntityGenerator
     }
 
     /**
-     * Add & evaluate value attribute
+     * Evaluate & add value attribute
      *
      * @param \SimpleXMLElement $element
      * @param string            $fieldName
      * @param string            $value
      */
     private function addValueAttribute(\SimpleXMLElement $element, $fieldName, $value)
+    {
+        $this->addAttribute($element, $fieldName, $this->evaluateValue($value));
+    }
+
+    /**
+     * Evaluate the value by resolving fields which could be present in the value
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    private function evaluateValue($value)
     {
         if (preg_match_all('/\{.+?\}/uis', $value, $matches)) {
             $savedValue = $value;
@@ -485,7 +515,8 @@ class EntityGenerator
                 $value = $AST->accept($evaluator);
             }
         }
-        $this->addAttribute($element, $fieldName, $value);
+
+        return $value;
     }
 
     /**
@@ -517,7 +548,11 @@ class EntityGenerator
             $fieldDescription['unique'] = true;
         }
         $fakeType = $fieldDescription['type'];
-        if ($fakeType === 'increment') {
+        if ($fakeType === 'conditionalValue') {
+            $argsFunctions[] = $fieldName;
+            $argsFunctions = array_merge($argsFunctions, $fieldDescription['args']);
+            $value = call_user_func_array(array($this, 'computeConditionalValue'), $argsFunctions);
+        } elseif ($fakeType === 'increment') {
             $value = $this->increment++;
         } elseif (array_key_exists('args', $fieldDescription)) {
             $argsFunctions = $fieldDescription['args'];
@@ -552,6 +587,52 @@ class EntityGenerator
         }
 
         return $idValue;
+    }
+
+    /**
+     * Compute a value depending on specific conditions
+     *
+     * @param string $fieldName
+     * @param string $condition
+     * @param string $valueConditionTrue
+     * @param string $valueConditionFalse
+     *
+     * @return string
+     */
+    private function computeConditionalValue($fieldName, $condition, $valueConditionTrue, $valueConditionFalse)
+    {
+        if (preg_match('/([a-zA-Z_]+)\((.+?)\)/uis', $condition, $matches)) {
+            $args[] = $fieldName;
+            $args[] = $matches[2];
+            $condition = call_user_func_array(array($this, $matches[1]), $args);
+        }
+
+        if ($this->evaluateValue($condition)) {
+            return $valueConditionTrue;
+        } else {
+            return $valueConditionFalse;
+        }
+    }
+
+    /**
+     * Check if the evaluated $value is different from the latest one
+     *
+     * @param string $fieldName
+     * @param string $value
+     *
+     * @return bool
+     */
+    private function isNewValue($fieldName, $value)
+    {
+        static $lastValue = [];
+        $value = $this->evaluateValue($value);
+        $isNewValue = false;
+        if (!array_key_exists($fieldName, $lastValue) || $lastValue[$fieldName] !== $value) {
+            $isNewValue = true;
+        }
+        $lastValue[$fieldName] = $value;
+
+        return $isNewValue;
     }
 
     /**

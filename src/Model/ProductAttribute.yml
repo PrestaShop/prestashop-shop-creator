@@ -5,6 +5,7 @@ fields:
           type: increment
         id_product:
           relation: Product
+          generate_all: true
         reference:
           value: ''
         supplier_reference:
@@ -29,7 +30,11 @@ fields:
         unit_price_impact:
           value: 0
         default_on:
-          value: 1
+          type: conditionalValue
+          args:
+            - isNewValue({id_product}) # condition
+            - 1 # value if condition is true
+            - null # value if condition is false
         minimal_quantity:
           value: 1
         available_date:

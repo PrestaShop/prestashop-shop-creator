@@ -163,8 +163,9 @@ The model file is in yml format, and contains three main section:
      
     5. <i><b>primary</b></i>
     
-        When the primary tag is used, the script iterate over all the existing values (the fields in the 'primary' tag
-        should be described as relations to other entities)
+        When the primary tag is used, the script iterate over all the existing values, excepted if there's a 
+        'generate_all: true' tag present (the fields in the 'primary' tag should be described as relations to other 
+        entities)
         
         Example:
         ```yaml

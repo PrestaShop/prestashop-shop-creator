@@ -153,7 +153,7 @@ class XMLGeneratorService
             $entityName = str_replace('.xml', '', $file->getFilename());
             $xml = new \SimpleXMLElement(file_get_contents($file->getPathname()));
             foreach ($xml->entities->$entityName as $values) {
-                $relations[$entityName][] = $values;
+                $relations[$entityName][(string)$values['id']] = $values;
             }
         }
 

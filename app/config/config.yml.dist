@@ -8,7 +8,6 @@ parameters:
     categories: 100
     warehouses: 2
     carriers: 3
-    profiles: 3
     specific_prices: 10000
     attribute_groups: 10
     products: 100
@@ -31,6 +30,7 @@ parameters:
     product_suppliers: 100
     order_carriers: 100
     order_details: 100
+    feature_products: 5
     stores: 100
     profiles: 10
     langs:

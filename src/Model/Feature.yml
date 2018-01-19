@@ -11,5 +11,5 @@ fields:
 fields_lang:
     columns:
         name:
-          type: word
+          type: md5
           unique: true

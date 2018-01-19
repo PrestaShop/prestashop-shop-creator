@@ -5,5 +5,6 @@ fields:
           relation: Feature
         id_product:
           relation: Product
+          generate_all: true
         id_feature_value:
           relation: FeatureValue

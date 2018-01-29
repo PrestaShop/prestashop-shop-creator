@@ -3,6 +3,7 @@ fields:
     columns:
         id_order:
           relation: Orders
+          generate_all: true
         id_carrier:
           relation: Carrier
         id_order_invoice:

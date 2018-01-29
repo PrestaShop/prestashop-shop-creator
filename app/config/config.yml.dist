@@ -19,7 +19,7 @@ parameters:
     feature_values: 100
     orders: 1000
     guests: 1000
-    order_histories: 10000
+    order_histories: 6
     range_prices: 100
     range_weights: 100
     product_attributes: 100
@@ -28,8 +28,8 @@ parameters:
     deliveries: 100
     connections: 1000
     product_suppliers: 100
-    order_carriers: 100
-    order_details: 100
+    order_carriers: 2
+    order_details: 10
     feature_products: 5
     stores: 100
     profiles: 10

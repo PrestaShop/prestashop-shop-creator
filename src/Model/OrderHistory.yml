@@ -8,5 +8,6 @@ fields:
             - 1
         id_order:
           relation: Orders
+          generate_all: true
         id_order_state:
           relation: OrderState

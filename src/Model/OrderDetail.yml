@@ -11,6 +11,7 @@ fields:
           value: 1
         product_id:
           relation: Product
+          generate_all: true
         product_attribute_id:
           relation: ProductAttribute
         product_name:

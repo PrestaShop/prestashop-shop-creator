@@ -3,6 +3,7 @@ fields:
     columns:
         id_product:
           relation: Product
+          generate_all: true
         id_product_attribute:
           relation: ProductAttribute
         id_supplier:

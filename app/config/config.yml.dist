@@ -11,7 +11,7 @@ parameters:
     specific_prices: 10000
     attribute_groups: 10
     products: 100
-    attributes: 100
+    attributes: 10
     carts: 1000
     cart_rules: 100
     customizations: 10
@@ -22,12 +22,12 @@ parameters:
     order_histories: 6
     range_prices: 100
     range_weights: 100
-    product_attributes: 100
+    product_attributes: 5
     images: 100
     order_messages: 100
     deliveries: 100
     connections: 1000
-    product_suppliers: 100
+    product_suppliers: 10
     order_carriers: 2
     order_details: 10
     feature_products: 5

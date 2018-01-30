@@ -3,6 +3,7 @@ fields:
     columns:
         id_order:
           relation: Orders
+          generate_all: true
         id_order_invoice:
           value: 0
         id_warehouse:
@@ -11,7 +12,6 @@ fields:
           value: 1
         product_id:
           relation: Product
-          generate_all: true
         product_attribute_id:
           relation: ProductAttribute
         product_name:

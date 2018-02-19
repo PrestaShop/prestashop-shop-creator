@@ -5,6 +5,7 @@ fields:
           type: increment
         id_feature:
           relation: Feature
+          generate_all: true
         custom:
           type: boolean
           args:
@@ -13,4 +14,3 @@ fields_lang:
     columns:
         value:
           type: word
-          unique: true

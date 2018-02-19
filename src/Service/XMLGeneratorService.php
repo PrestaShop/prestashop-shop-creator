@@ -24,7 +24,7 @@ class XMLGeneratorService
         $relations = self::initializeDefaultData();
         $relationList = [];
 
-        $fileList = self::sortModelWithDependencies($finder);
+        list($dependencies, $fileList) = self::sortModelWithDependencies($finder);
 
         foreach ($fileList as $modelName) {
             $configKey = Inflector::tableize(Inflector::pluralize($modelName));
@@ -32,6 +32,7 @@ class XMLGeneratorService
             $entityXml = self::generateXML(
                 $configKey,
                 $modelName,
+                $dependencies,
                 $relations,
                 $relationList,
                 $configuration
@@ -39,6 +40,8 @@ class XMLGeneratorService
 
             $relations = $entityXml->getRelations();
             $relationList = $entityXml->getRelationList();
+            // cleanup the relations array as soon as possible to avoid eating too much memory
+            self::removeGeneratedDependencies(Inflector::tableize($modelName), $relations, $dependencies);
 
             unset($entityXml);
             gc_collect_cycles();
@@ -46,8 +49,30 @@ class XMLGeneratorService
     }
 
     /**
+     * @param $entityToRemove
+     * @param $relations
+     * @param $dependencies
+     */
+    private static function removeGeneratedDependencies($entityToRemove, &$relations, &$dependencies)
+    {
+        foreach($dependencies as $key => &$values) {
+            foreach($values as $valueKey => $value) {
+                if ($value == $entityToRemove) {
+                    unset($values[$valueKey]);
+                }
+                // if there's no more dependencies, we can cleanup the relation list
+                if (count($values) == 0) {
+                    unset($relations[$key]);
+                    unset($dependencies[$key]);
+                }
+            }
+        }
+    }
+
+    /**
      * @param string $configKey
      * @param string $modelName
+     * @param array  $dependencies
      * @param array  $relations
      * @param array  $relationList
      * @param array  $configuration
@@ -59,8 +84,9 @@ class XMLGeneratorService
     private static function generateXML(
         $configKey,
         $modelName,
-        $relations,
-        $relationList,
+        $dependencies,
+        &$relations,
+        &$relationList,
         $configuration
     ) {
         $entityModel = Yaml::parse(file_get_contents(__DIR__.'/../Model/'.$modelName.'.yml'));
@@ -78,6 +104,7 @@ class XMLGeneratorService
             Inflector::tableize($modelName),
             $entityModel,
             $entityCount,
+            $dependencies,
             $relations,
             $relationList,
             $configuration['langs']
@@ -97,15 +124,17 @@ class XMLGeneratorService
      */
     private static function sortModelWithDependencies(Finder $finder)
     {
+        $dependencies = $storedDependencies = [];
+
         foreach ($finder as $file) {
             $pathName = $file->getPathname();
             $modelType = str_replace('.yml', '', $file->getFilename());
-            $configKey = Inflector::tableize(Inflector::pluralize($modelType));
             $yamlContent = file_get_contents($pathName);
             if (preg_match_all('/relation:\W*(.+)$/uim', $yamlContent, $matches)) {
                 foreach ($matches[1] as $dependency) {
                     if ($dependency != $modelType) {
                         $dependencies[$dependency][] = $modelType;
+                        $storedDependencies[Inflector::tableize($dependency)][] = Inflector::tableize($modelType);
                     }
                 }
             }
@@ -135,7 +164,7 @@ class XMLGeneratorService
             $parentEntities = $sortEntities;
         } while ($current != $sortEntities);
 
-        return $sortEntities;
+        return [$storedDependencies, $sortEntities];
     }
 
     /**

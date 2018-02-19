@@ -5,11 +5,11 @@ fields:
         id_stock_available:
           type: increment
           unique: true
-        id_product:
-          relation: Product
         id_product_attribute:
           relation: ProductAttribute
-          nullable: true
+          generate_all: true
+        id_product:
+          relation: Product
         id_shop:
           value: 1
         id_shop_group:

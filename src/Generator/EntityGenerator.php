@@ -77,6 +77,9 @@ class EntityGenerator
     /** @var array list of values associated with each fields for a given entity */
     protected $fieldValues = [];
 
+    /** @var array the list of dependencies between entities */
+    protected $dependencies = [];
+
     /** @var array Array of already generated img to be reused to speed up the generation process */
     protected $generatedImgs = [];
 
@@ -86,6 +89,7 @@ class EntityGenerator
      * @param string $entityElementName
      * @param array  $entityModel
      * @param int    $nbEntities
+     * @param array  $dependencies
      * @param array  $relations
      * @param array  $relationList
      * @param array  $langs
@@ -94,8 +98,9 @@ class EntityGenerator
         $entityElementName,
         $entityModel,
         $nbEntities,
-        $relations,
-        $relationList,
+        $dependencies,
+        &$relations,
+        &$relationList,
         $langs
     ) {
         $this->fakerGenerator = Factory::create('fr_FR');
@@ -103,6 +108,7 @@ class EntityGenerator
         $this->entityModel = $entityModel;
         $this->relationList = $relationList;
         $this->relations = $relations;
+        $this->dependencies = $dependencies;
         $fields = $this->entityModel['fields'];
 
         $parentEntities = $this->extractParentEntities($entityModel);
@@ -168,8 +174,8 @@ class EntityGenerator
         foreach ($entityModel['fields']['columns'] as $fieldName => $fieldDescription) {
             if (array_key_exists('generate_all', $fieldDescription)) {
                 $relation = $fieldDescription['relation'];
-                $keyName = Inflector::tableize($relation);
-                $parentEntities[$keyName] = $this->relations[Inflector::tableize($relation)];
+                $keyName = $this->tableize($relation);
+                $parentEntities[$keyName] = $this->relations[$keyName];
             }
         }
 
@@ -203,17 +209,25 @@ class EntityGenerator
 
     public function save()
     {
+        unset($this->localeFakerGenerator);
+        unset($this->fakerGenerator);
         $outputPath = __DIR__.'/../../generated_data';
         // beautify the output
         $dom = dom_import_simplexml($this->xml)->ownerDocument;
+        unset($this->xml);
+        gc_collect_cycles();
         $dom->preserveWhiteSpace = false;
         $dom->formatOutput = true;
         $output = $dom->saveXML();
         @mkdir($outputPath.'/data/', 0777, true);
         file_put_contents($outputPath.'/data/'.$this->entityElementName.'.xml', $output);
+        unset($output);
+        gc_collect_cycles();
         if ($this->hasLang) {
             foreach ($this->xmlLang as $lang => $xmlLang) {
                 $domLang = dom_import_simplexml($xmlLang)->ownerDocument;
+                unset($xmlLang);
+                gc_collect_cycles();
                 $domLang->preserveWhiteSpace = false;
                 $domLang->formatOutput = true;
                 $outputLang = $domLang->saveXML();
@@ -222,6 +236,8 @@ class EntityGenerator
                     $outputPath . '/langs/' . $lang . '/data/' . $this->entityElementName . '.xml',
                     $outputLang
                 );
+                unset($outputLang);
+                gc_collect_cycles();
             }
         }
     }
@@ -241,7 +257,7 @@ class EntityGenerator
                 $primaryField = trim($primaryField);
                 $fieldInfos = $this->entityModel['fields']['columns'][$primaryField];
                 if (isset($fieldInfos['relation'])) {
-                    $relationName = Inflector::tableize($fieldInfos['relation']);
+                    $relationName = $this->tableize($fieldInfos['relation']);
                     if (array_key_exists('nullable', $fieldInfos) && $fieldInfos['nullable'] == true) {
                         $nullable = true;
                     } else {
@@ -256,10 +272,11 @@ class EntityGenerator
             if ($this->parentEntities) {
                 foreach ($this->parentEntities as $key => $values) {
                     foreach ($values as $value) {
+                        $relationValues = [$key => $value];
                         echo 'Generating ' . $this->nbEntities . ' ' . $this->entityElementName .
                             " entities using parent entity " . $key . " " . $value['id'] . "\n";
                         for ($i = 1; $i <= $this->nbEntities; $i++) {
-                            $this->generateEntityData($child, [$key => $value]);
+                            $this->generateEntityData($child, $relationValues);
                         }
                     }
                 }
@@ -279,7 +296,7 @@ class EntityGenerator
      *
      * @throws RuntimeException
      */
-    private function generateEntityData($child, $relationValues = null)
+    private function generateEntityData($child, &$relationValues = null)
     {
         $this->relationValues = [];
         $entityData = $this->generateMainEntityData($child, $relationValues);
@@ -302,7 +319,7 @@ class EntityGenerator
      *
      * @throws RuntimeException
      */
-    private function walkOnRelations(\SimpleXMLElement $child, $relations, $relationValues = array())
+    private function walkOnRelations(\SimpleXMLElement $child, $relations, &$relationValues = array())
     {
         $relationInfos = array_pop($relations);
         $relationName = $relationInfos['name'];
@@ -348,6 +365,23 @@ class EntityGenerator
     }
 
     /**
+     * Tableize strings an store the result in a local cache
+     *
+     * @param $string
+     *
+     * @return string
+     */
+    private function tableize($string)
+    {
+        static $tableizeStrings = [];
+        if (!isset($tableizeStrings[$string])) {
+            $tableizeStrings[$string] = Inflector::tableize($string);
+        }
+
+        return $tableizeStrings[$string];
+    }
+
+    /**
      * Generate main xml files
      *
      * @param \SimpleXMLElement $element
@@ -356,7 +390,7 @@ class EntityGenerator
      * @return \SimpleXMLElement
      * @throws RuntimeException
      */
-    private function generateMainEntityData(\SimpleXMLElement $element, $relationValues = null)
+    private function generateMainEntityData(\SimpleXMLElement $element, &$relationValues = null)
     {
         $this->fieldValues = [];
         $child = $element->addChild($this->entityElementName);
@@ -382,7 +416,7 @@ class EntityGenerator
                 } else {
                     $conditions = [];
                 }
-                $this->relationList[$this->entityElementName][$fieldName] = Inflector::tableize($fieldDescription['relation']);
+                $this->relationList[$this->entityElementName][$fieldName] = $this->tableize($fieldDescription['relation']);
                 $relationConditions[$fieldName] = $conditions;
             } elseif (array_key_exists('value', $fieldDescription)) {
                 $valueAttributes[$fieldName] = $fieldDescription['value'];
@@ -417,7 +451,10 @@ class EntityGenerator
         }
 
         if ($idValue !== null) {
-            $this->relations[$this->entityElementName][$idValue] = $child;
+            // if this entities is used in other entities
+            if (isset($this->dependencies[$this->entityElementName])) {
+                $this->relations[$this->entityElementName][$idValue] = $child;
+            }
             if ($this->imgPath) {
                 @mkdir(__DIR__.'/../../generated_data/img/'.$this->imgPath, 0777, true);
                 // 50 generated img is enough
@@ -437,7 +474,7 @@ class EntityGenerator
                     $deleteSrc = false;
                 }
                 $newImgPath = __DIR__.'/../../generated_data/img/'.$this->imgPath.'/'.$idValue.'.jpg';
-                if (@copy($filepath, $newImgPath)) {
+                if (@copy($filepath, $newImgPath) && $deleteSrc) {
                     $this->generatedImgs[$this->imgPath][] = $newImgPath;
                 }
                 if ($deleteSrc) {
@@ -656,8 +693,11 @@ class EntityGenerator
             // and check if this relation has itself relations
             if (array_key_exists($relation, $this->relationList)) {
                 $relatedRelations = $this->relationList[$relation];
-                // now get common relations between the entity and the entities' relation
-                $dependencies = array_merge($dependencies, array_intersect($relations, $relatedRelations));
+                // if the relation we are generating is also part of another relation
+                if ($relationFieldName = array_search($relationName, $relatedRelations)) {
+                    // store the fieldName used inside the dependant relation
+                    $dependencies[$relation] = $relationFieldName;
+                }
             }
         }
 
@@ -677,28 +717,30 @@ class EntityGenerator
                     }
                 }
             }
-
-            // if there's no dependencies, any random value is ok
-            if (empty($dependencies) || !in_array($relationName, $dependencies) || $relationName == $entityName) {
-                break;
-            }
-
-            // but if we do have dependencies, check the value we have chosen match the random one
-            // check if we have already generated this value
-            if (array_key_exists($relationName, $this->relationValues)) {
-                if ($randomRelation['id'] != $this->relationValues[$relationName]) {
-                    // no match, try again!
-                    continue;
-                }
-            }
-
             break;
         }
 
-        $id = $randomRelation['id'];
-        $this->relationValues[$relationName] = $id;
+        // if there's no dependencies, any random value is ok
+        if (!(empty($dependencies) || $relationName == $entityName)) {
+            // but if we do have dependencies, get the field name we should use from it
+            foreach ($dependencies as $dependency => $relationFieldName) {
+                // we have generated the dependent entity earlier, we should use the values from this entity
+                // instead of a random one
+                if (array_key_exists($dependency, $this->relationValues)) {
+                    // relations are indexed by id, so to get the proper relation, just use the relationValues which
+                    // contains the id of the already generated dependent entity
+                    $dependentRelation = $this->relations[$dependency][$this->relationValues[$dependency]];
+                    $newKey = (string)($dependentRelation[$relationFieldName]);
+                    if (!empty($newKey)) {
+                        // finally get the relation using the value stored in the dependency
+                        $randomRelation = $this->relations[$relationName][$newKey];
+                    }
+                    break;
+                }
+            }
+        }
 
-        return $id;
+        return (string)($randomRelation['id']);
     }
 
     /**
@@ -721,7 +763,7 @@ class EntityGenerator
         $fieldName,
         $relationName,
         $relationConditions,
-        $relationValues,
+        &$relationValues,
         $entityName,
         $canBeNull = false
     ) {
@@ -729,11 +771,13 @@ class EntityGenerator
 
         if ($relationValues && array_key_exists($relationName, $relationValues)) {
             $value = (string)$relationValues[$relationName]['id'];
+            $this->relationValues[$relationName] = $value;
         } else {
             if ($canBeNull && mt_rand(0, 1)) {
                 $value = 0;
             } else {
-                $value = (string)$this->getRandomRelationId($relationName, $relationConditions, $entityName);
+                $value = $this->getRandomRelationId($relationName, $relationConditions, $entityName);
+                $this->relationValues[$relationName] = $value;
             }
         }
         $this->addAttribute($element, $fieldName, $value);
@@ -871,7 +915,7 @@ class EntityGenerator
         $field = $element->addChild('field');
         $field->addAttribute('name', $fieldName);
         if (array_key_exists('relation', $fieldDescription)) {
-            $field->addAttribute('relation', Inflector::tableize($fieldDescription['relation']));
+            $field->addAttribute('relation', $this->tableize($fieldDescription['relation']));
         }
     }
 }

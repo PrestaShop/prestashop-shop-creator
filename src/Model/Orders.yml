@@ -10,12 +10,12 @@ fields:
           value: 1
         id_shop:
           value: 1
+        id_cart:
+          relation: Cart
         id_carrier:
           relation: Carrier
         id_customer:
           relation: Customer
-        id_cart:
-          relation: Cart
         id_currency:
           value: 1
         id_address_delivery:

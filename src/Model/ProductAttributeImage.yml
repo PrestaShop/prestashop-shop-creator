@@ -3,5 +3,6 @@ fields:
     columns:
         id_product_attribute:
           relation: ProductAttribute
+          generate_all: true
         id_image:
           relation: Image

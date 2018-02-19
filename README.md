@@ -64,6 +64,10 @@ The model file is in yml format, and contains three main section:
               type: words
               args:
                 - 10 #nb words
+            id_customer:
+              relation: Customer
+              conditions: 
+               id_guest: 1
             name:
               type: word
               args:
@@ -120,6 +124,21 @@ The model file is in yml format, and contains three main section:
                     id_product:
                       relation: Product
                       generate_all: true
+            ```
+            
+            If the 'conditions' property is used in conjunction with a relation type, it means all the fields specified 
+            should have the specified value in the related entity:
+            
+            ```yaml
+            fields:
+                class: 'Guest'
+                columns:
+                    id:
+                      type: increment
+                id_customer:
+                  relation: Customer
+                  conditions:
+                    is_guest: 1
             ```
             
         3. <u>the 'value' property</u>

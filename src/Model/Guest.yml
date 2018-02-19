@@ -9,6 +9,8 @@ fields:
           relation: WebBrowser
         id_customer:
           relation: Customer
+          conditions:
+            is_guest: 1
         javascript:
           type: boolean
           args:

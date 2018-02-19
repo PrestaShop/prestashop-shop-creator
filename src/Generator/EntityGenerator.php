@@ -437,7 +437,7 @@ class EntityGenerator
                     $deleteSrc = false;
                 }
                 $newImgPath = __DIR__.'/../../generated_data/img/'.$this->imgPath.'/'.$idValue.'.jpg';
-                if (copy($filepath, $newImgPath)) {
+                if (@copy($filepath, $newImgPath)) {
                     $this->generatedImgs[$this->imgPath][] = $newImgPath;
                 }
                 if ($deleteSrc) {
@@ -649,9 +649,6 @@ class EntityGenerator
      */
     private function getRandomRelationId($relationName, $relationConditions, $entityName)
     {
-        if (!empty($relationConditions)) {
-            //@TODO: implement 'conditions' tag
-        }
         $relations = $this->relationList[$entityName];
         $dependencies = [];
         // first get all the relations inside the entity
@@ -666,7 +663,20 @@ class EntityGenerator
 
         while (1) {
             // a random relation value
+            /** @var \SimpleXMLElement $randomRelation */
             $randomRelation = $this->relations[$relationName][array_rand($this->relations[$relationName])];
+            $attributes = ((array)$randomRelation)['@attributes'];
+            // if there's a relationConditions, verify the randomRelation match the condition
+            if (!empty($relationConditions)) {
+                foreach ($relationConditions as $fieldName => $conditionValue) {
+                    if (
+                        array_key_exists($fieldName, $attributes)
+                        && $attributes[$fieldName] != $conditionValue
+                    ) {
+                        continue 2;
+                    }
+                }
+            }
 
             // if there's no dependencies, any random value is ok
             if (empty($dependencies) || !in_array($relationName, $dependencies) || $relationName == $entityName) {

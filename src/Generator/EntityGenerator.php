@@ -734,6 +734,10 @@ class EntityGenerator
      */
     private function getRelationWithMatchingFieldsFromDependencies($relationName)
     {
+        static $lastRelationList = null;
+        if ($lastRelationList === null) {
+            $lastRelationList = $this->relations[$relationName];
+        }
         // get the relations inside the current relation
         if (!array_key_exists($relationName, $this->relationList)) {
             return null;
@@ -768,12 +772,41 @@ class EntityGenerator
             return null;
         }
 
+        $potentialRelation = $this->getMatchingRelation(
+            $lastRelationList,
+            $relationFieldValue
+        );
+
+        // just in case, if we found no value with the reduced relation list, retry with the full list
+        if (empty($potentialRelation)) {
+            $lastRelationList = $this->relations[$relationName];
+            $potentialRelation = $this->getMatchingRelation(
+                $lastRelationList,
+                $relationFieldValue
+            );
+        }
+
+        return $potentialRelation;
+    }
+
+    /**
+     * Find inside the relations array the relation with the matching entries from relationFieldValue
+     *
+     * @param array $relations
+     * @param array $relationFieldValue
+     *
+     * @return null
+     */
+    private function getMatchingRelation(&$relations, $relationFieldValue)
+    {
         // check the fields of the already generated relations match the current randomRelation
-        foreach($this->relations[$relationName] as $potentialRelation) {
+        foreach($relations as $relationKey => $potentialRelation) {
             foreach ($relationFieldValue as $key => $value) {
                 $potentialRelationValue = (string)($potentialRelation[$key]);
                 // not matching, try another relation
                 if ($potentialRelationValue != $value) {
+                    // optimization, we use a dynamic relation list from where we remove non matching elements
+                    unset($relations[$relationKey]);
                     continue 2;
                 }
             }

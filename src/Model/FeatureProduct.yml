@@ -1,10 +1,10 @@
 fields:
     primary: 'id_feature,id_product'
     columns:
-        id_feature:
-          relation: Feature
         id_product:
           relation: Product
           generate_all: true
         id_feature_value:
           relation: FeatureValue
+        id_feature:
+          relation: Feature

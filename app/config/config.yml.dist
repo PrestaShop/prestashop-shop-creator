@@ -17,7 +17,7 @@ parameters:
     customizations: 10
     features: 7500
     feature_values: 5
-    orders: 1000
+    orders: 10
     guests: 1000
     order_histories: 6
     range_prices: 100

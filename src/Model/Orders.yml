@@ -16,6 +16,7 @@ fields:
           relation: Carrier
         id_customer:
           relation: Customer
+          generate_all: true
         id_currency:
           value: 1
         id_address_delivery:

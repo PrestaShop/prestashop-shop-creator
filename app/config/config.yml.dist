@@ -1,24 +1,24 @@
 parameters:
     shop_id: 1
-    customers: 1000
+    customers: 100
     manufacturers: 100
     suppliers: 10
-    addresses: 1000
-    aliases: 1000
+    addresses: 100
+    aliases: 100
     categories: 100
     warehouses: 2
     carriers: 3
-    specific_prices: 10000
+    specific_prices: 100
     attribute_groups: 10
-    products: 10000
+    products: 100
     attributes: 10
     carts: 1000
     cart_rules: 100
     customizations: 10
-    features: 7500
+    features: 100
     feature_values: 5
-    orders: 1000
-    guests: 1000
+    orders: 10
+    guests: 10
     order_histories: 6
     range_prices: 100
     range_weights: 100

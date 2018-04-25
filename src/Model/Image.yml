@@ -10,6 +10,7 @@ fields:
           type: increment
         id_product:
           relation: Product
+          generate_all: true
         cover:
           value: 1
 fields_lang:

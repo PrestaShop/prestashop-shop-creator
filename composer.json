@@ -2,7 +2,7 @@
   "name": "prestashop/shop-generator",
   "require": {
     "php": ">=7.0.0",
-    "fzaninotto/faker": "^1.7",
+    "fakerphp/faker": "^1.13",
     "symfony/console": "^3.4",
     "symfony/yaml": "^3.4",
     "incenteev/composer-parameter-handler": "^2.1",

@@ -99,7 +99,7 @@ The model file is in yml format, and contains three main section:
              has changed since the last time we have generated an entity.   
             
             * other properly value allows to generate random value. , another types
-            available are described from the faker module: https://github.com/fzaninotto/Faker 
+            available are described from the faker module: https://github.com/FakerPHP/Faker 
             
             If you need to pass an argument to a faker function, just add the 'args:' tag like in the above example.
             

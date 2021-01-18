@@ -23,7 +23,7 @@ parameters:
     range_prices: 100
     range_weights: 100
     product_attributes: 5
-    images: 100
+    images: 3
     order_messages: 100
     deliveries: 100
     connections: 1000

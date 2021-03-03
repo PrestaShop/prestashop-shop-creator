@@ -1,15 +1,15 @@
 {
-  "name": "Prestashop/ShopGenerator",
+  "name": "prestashop/shop-generator",
   "require": {
     "php": ">=7.0.0",
-    "fzaninotto/faker": "^1.7",
+    "fakerphp/faker": "^1.13",
     "symfony/console": "^3.4",
     "symfony/yaml": "^3.4",
     "incenteev/composer-parameter-handler": "^2.1",
-    "Doctrine/Inflector": "^1.2",
-    "Symfony/Finder": "^3.4",
+    "doctrine/inflector": "^1.2",
+    "symfony/finder": "^3.4",
     "mossadal/math-parser": "^1.3",
-    "Symfony/Filesystem": "^3.0",
+    "symfony/filesystem": "^3.0",
     "ext-SimpleXML": "*"
   },
   "require-dev": {

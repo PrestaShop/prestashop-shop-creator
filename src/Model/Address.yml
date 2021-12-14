@@ -43,8 +43,6 @@ fields:
           type: randomNumber
           args:
             - 6
-        dni:
-          value: ''
         active:
           type: boolean
           args:

@@ -44,7 +44,7 @@ fields:
           args:
             - 6
         dni:
-          value: ''
+          value: '77446565E'
         active:
           type: boolean
           args:

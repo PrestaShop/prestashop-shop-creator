@@ -225,7 +225,29 @@ The model file is in yml format, and contains three main section:
         sports
         technics 
         transport
-        ```                                        
+        ```
+
+   7. <i><b>unique (optional)</b></i>
+
+        This option can be used to define unique combination of fields to generate entities.
+        Example :
+      ```yaml
+        fields:
+            class: 'ProductSupplier'
+            unique: 'id_product,id_product_attribute,id_supplier'
+            columns:
+                id_product:
+                  relation: Product
+                  generate_all: true
+                id_product_attribute:
+                  relation: ProductAttribute
+                id_supplier:
+                  relation: Supplier
+                product_supplier_reference:
+                  value: ''
+                product_supplier_price_te:
+                  value: 0
+        ```
 
 2. <b>The fields_lang section (optional)</b>
 

@@ -1,5 +1,6 @@
 fields:
     class: 'ProductSupplier'
+    unique: 'id_product,id_product_attribute,id_supplier'
     columns:
         id_product:
           relation: Product

@@ -858,9 +858,19 @@ class EntityGenerator
             return (string)($relation['id']);
         }
 
+        $maxRetry = 1000;
+        $try = 1;
         do {
             // a random relation value
             $randomRelation = $this->relations[$relationName][array_rand($this->relations[$relationName])];
+            if ($try >= $maxRetry) {
+                throw new RuntimeException(
+                    'A '. $relationName . ' relation can\'t be found for entity ' . $entityName
+                    . ' with these conditions : ' . http_build_query($relationConditions,'',', ')
+                    . ' try to adapt config.yml or entity files in src/Model'
+                );
+            }
+            $try++;
         } while (!$this->isMatchingConditions($relationConditions, $randomRelation));
 
         return (string)($randomRelation['id']);

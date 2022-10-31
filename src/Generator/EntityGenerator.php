@@ -398,7 +398,13 @@ class EntityGenerator
     private function generateMainEntityData(\SimpleXMLElement $element, &$relationValues = null)
     {
         $this->fieldValues = [];
-        $child = new \SimpleXMLElement('<' .$this->entityElementName.'>'.'</' .$this->entityElementName.'>');
+        $child = new \SimpleXMLElement(
+            sprintf(
+                '<%s></%s>',
+                $this->entityElementName,
+                $this->entityElementName
+            )
+        );
         $this->relationList[$this->entityElementName] = [];
         $idValue = null;
         $relationLists = $relationConditions = $valueAttributes = $fakerAttributes = [];

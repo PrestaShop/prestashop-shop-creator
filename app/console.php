@@ -1,8 +1,10 @@
 <?php
+
 namespace ShopGenerator\Service;
 
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
+
 date_default_timezone_set('UTC');
 
 // include the composer AutoLoader

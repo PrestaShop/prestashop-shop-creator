@@ -124,7 +124,7 @@ class XMLGeneratorService
      */
     private static function sortModelWithDependencies(Finder $finder)
     {
-        $dependencies = $storedDependencies = [];
+        $dependencies = $storedDependencies = $parentEntities = [];
 
         foreach ($finder as $file) {
             $pathName = $file->getPathname();

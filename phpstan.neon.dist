@@ -1,0 +1,7 @@
+parameters:
+  paths:
+    - app
+    - src
+  level: 5
+  parallel:
+    maximumNumberOfProcesses: 1

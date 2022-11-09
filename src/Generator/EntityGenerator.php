@@ -730,7 +730,7 @@ class EntityGenerator
      *
      * @param string $relationName
      *
-     * @return \SimpleXMLElement
+     * @return \SimpleXMLElement|null
      */
     private function getRelationWithMatchingFieldsFromDependencies($relationName)
     {
@@ -795,7 +795,7 @@ class EntityGenerator
      * @param array $relations
      * @param array $relationFieldValue
      *
-     * @return null
+     * @return \SimpleXMLElement|null
      */
     private function getMatchingRelation(&$relations, $relationFieldValue)
     {

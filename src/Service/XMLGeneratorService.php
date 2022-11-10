@@ -20,7 +20,7 @@ class XMLGeneratorService
     public static function createXML($configuration)
     {
         $finder = new Finder();
-        $finder->files()->in(__DIR__.'/../Model');
+        $finder->files()->in(__DIR__ . '/../Model');
         $relations = self::initializeDefaultData();
         $relationList = [];
 
@@ -55,8 +55,8 @@ class XMLGeneratorService
      */
     private static function removeGeneratedDependencies($entityToRemove, &$relations, &$dependencies)
     {
-        foreach($dependencies as $key => &$values) {
-            foreach($values as $valueKey => $value) {
+        foreach ($dependencies as $key => &$values) {
+            foreach ($values as $valueKey => $value) {
                 if ($value == $entityToRemove) {
                     unset($values[$valueKey]);
                 }
@@ -72,12 +72,13 @@ class XMLGeneratorService
     /**
      * @param string $configKey
      * @param string $modelName
-     * @param array  $dependencies
-     * @param array  $relations
-     * @param array  $relationList
-     * @param array  $configuration
+     * @param array $dependencies
+     * @param array $relations
+     * @param array $relationList
+     * @param array $configuration
      *
      * @return EntityGenerator
+     *
      * @throws RuntimeException
      * @throws \Symfony\Component\Yaml\Exception\ParseException
      */
@@ -89,7 +90,7 @@ class XMLGeneratorService
         &$relationList,
         $configuration
     ) {
-        $entityModel = Yaml::parse(file_get_contents(__DIR__.'/../Model/'.$modelName.'.yml'));
+        $entityModel = Yaml::parse(file_get_contents(__DIR__ . '/../Model/' . $modelName . '.yml'));
         if (!array_key_exists($configKey, $configuration)) {
             if (!array_key_exists('primary', $entityModel['fields'])) {
                 throw new RuntimeException('Missing configuration entry for key ' . $configKey);
@@ -142,8 +143,8 @@ class XMLGeneratorService
         }
 
         do {
-            $current = (isset($sortEntities)) ? $sortEntities : array();
-            $sortEntities = array();
+            $current = (isset($sortEntities)) ? $sortEntities : [];
+            $sortEntities = [];
             foreach ($parentEntities as $key => $entity) {
                 if (isset($dependencies[$entity])) {
                     $min = count($parentEntities) - 1;
@@ -155,7 +156,7 @@ class XMLGeneratorService
                     if ($min == 0) {
                         array_unshift($sortEntities, $entity);
                     } else {
-                        array_splice($sortEntities, $min, 0, array($entity));
+                        array_splice($sortEntities, $min, 0, [$entity]);
                     }
                 } else {
                     $sortEntities[] = $entity;
@@ -171,18 +172,19 @@ class XMLGeneratorService
      * Fill the relations table with values from default xml data
      *
      * @return array
+     *
      * @throws \InvalidArgumentException
      */
     private static function initializeDefaultData()
     {
-        $relations = array();
+        $relations = [];
         $finder = new Finder();
-        $finder->files()->in(__DIR__.'/../../default_data');
+        $finder->files()->in(__DIR__ . '/../../default_data');
         foreach ($finder as $file) {
             $entityName = str_replace('.xml', '', $file->getFilename());
             $xml = new \SimpleXMLElement(file_get_contents($file->getPathname()));
             foreach ($xml->entities->$entityName as $values) {
-                $relations[$entityName][(string)$values['id']] = $values;
+                $relations[$entityName][(string) $values['id']] = $values;
             }
         }
 

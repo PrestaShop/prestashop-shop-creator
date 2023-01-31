@@ -55,6 +55,9 @@ jobs:
       - name: PHP syntax checker 8.1
         uses: prestashop/github-action-php-lint/8.1@master
 
+      - name: PHP syntax checker 8.1
+        uses: prestashop/github-action-php-lint/8.2@master
+
   phpstan:
     permissions:
       actions: write  # for styfle/cancel-workflow-action to cancel/stop running workflows
@@ -63,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
+        php: [ '7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
       fail-fast: false
     steps:
       - name: Cancel Previous Runs

@@ -55,7 +55,7 @@ jobs:
       - name: PHP syntax checker 8.1
         uses: prestashop/github-action-php-lint/8.1@master
 
-      - name: PHP syntax checker 8.1
+      - name: PHP syntax checker 8.2
         uses: prestashop/github-action-php-lint/8.2@master
 
   phpstan:

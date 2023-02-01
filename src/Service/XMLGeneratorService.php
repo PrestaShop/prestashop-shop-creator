@@ -53,7 +53,7 @@ class XMLGeneratorService
      * @param $relations
      * @param $dependencies
      */
-    private static function removeGeneratedDependencies($entityToRemove, &$relations, &$dependencies)
+    private static function removeGeneratedDependencies($entityToRemove, & $relations, & $dependencies)
     {
         foreach ($dependencies as $key => &$values) {
             foreach ($values as $valueKey => $value) {
@@ -86,8 +86,8 @@ class XMLGeneratorService
         $configKey,
         $modelName,
         $dependencies,
-        &$relations,
-        &$relationList,
+        & $relations,
+        & $relationList,
         $configuration
     ) {
         $entityModel = Yaml::parse(file_get_contents(__DIR__ . '/../Model/' . $modelName . '.yml'));

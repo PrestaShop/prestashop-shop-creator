@@ -99,8 +99,8 @@ class EntityGenerator
         $entityModel,
         $nbEntities,
         $dependencies,
-        &$relations,
-        &$relationList,
+        & $relations,
+        & $relationList,
         $langs
     ) {
         $this->fakerGenerator = Factory::create('fr_FR');
@@ -297,7 +297,7 @@ class EntityGenerator
      *
      * @throws RuntimeException
      */
-    private function generateEntityData($child, &$relationValues = null)
+    private function generateEntityData($child, & $relationValues = null)
     {
         $this->relationValues = [];
         $entityData = $this->generateMainEntityData($child, $relationValues);
@@ -320,7 +320,7 @@ class EntityGenerator
      *
      * @throws RuntimeException
      */
-    private function walkOnRelations(\SimpleXMLElement $child, $relations, &$relationValues = [])
+    private function walkOnRelations(\SimpleXMLElement $child, $relations, & $relationValues = [])
     {
         $relationInfos = array_pop($relations);
         $relationName = $relationInfos['name'];
@@ -386,7 +386,7 @@ class EntityGenerator
      *
      * @throws RuntimeException
      */
-    private function generateMainEntityData(\SimpleXMLElement $element, &$relationValues = null)
+    private function generateMainEntityData(\SimpleXMLElement $element, & $relationValues = null)
     {
         $this->fieldValues = [];
         $child = $element->addChild($this->entityElementName);
@@ -792,7 +792,7 @@ class EntityGenerator
      *
      * @return \SimpleXMLElement|null
      */
-    private function getMatchingRelation(&$relations, $relationFieldValue)
+    private function getMatchingRelation(& $relations, $relationFieldValue)
     {
         // check the fields of the already generated relations match the current randomRelation
         foreach ($relations as $relationKey => $potentialRelation) {
@@ -859,13 +859,9 @@ class EntityGenerator
             // a random relation value
             $randomRelation = $this->relations[$relationName][array_rand($this->relations[$relationName])];
             if ($try >= $maxRetry) {
-                throw new RuntimeException(
-                    'A '. $relationName . ' relation can\'t be found for entity ' . $entityName
-                    . ' with these conditions : ' . http_build_query($relationConditions,'',', ')
-                    . ' try to adapt config.yml or entity files in src/Model'
-                );
+                throw new RuntimeException('A ' . $relationName . ' relation can\'t be found for entity ' . $entityName . ' with these conditions : ' . http_build_query($relationConditions, '', ', ') . ' try to adapt config.yml or entity files in src/Model');
             }
-            $try++;
+            ++$try;
         } while (!$this->isMatchingConditions($relationConditions, $randomRelation));
 
         return (string) ($randomRelation['id']);
@@ -891,7 +887,7 @@ class EntityGenerator
         $fieldName,
         $relationName,
         $relationConditions,
-        &$relationValues,
+        & $relationValues,
         $entityName,
         $nullable = false
     ) {

@@ -1,4 +1,7 @@
 /app/config/config.yml
 /composer.phar
+/composer.lock
 /vendor/
 /generated_data/
+
+.php-cs-fixer.cache

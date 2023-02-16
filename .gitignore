@@ -2,3 +2,4 @@
 /composer.phar
 /vendor/
 /generated_data/
+.php_cs.cache

@@ -103,7 +103,9 @@ fields_lang:
           args:
             - 6
         description:
-          type: sentence
+          type: paragraph
+          args:
+            - 25
         description_short:
           type: sentence
           args:

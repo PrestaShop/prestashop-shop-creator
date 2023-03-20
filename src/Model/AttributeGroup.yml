@@ -3,6 +3,10 @@ fields:
     columns:
         id:
           type: increment
+        is_color_group:
+            type: boolean
+            args:
+                - 95 # probability of getting a true for this param
         group_type:
           type: randomElement
           args:
@@ -10,10 +14,6 @@ fields:
               - select
               - radio
               - color
-        is_color_group:
-          type: boolean
-          args:
-            - 95 # probability of getting a true for this param
 fields_lang:
     columns:
         name:

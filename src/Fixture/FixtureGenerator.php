@@ -14,7 +14,6 @@ class FixtureGenerator
     private FixtureDefinitionCollection $definitions;
 
     private array $configuration;
-    private array $entities;
     private array $entitiesByDefinition = [];
     private array $fakersLang;
     private array $entitiesLang = [];
@@ -52,6 +51,7 @@ class FixtureGenerator
         if ($this->evaluateValue($condition)) {
             return $valueConditionTrue;
         }
+
         return $valueConditionFalse;
     }
 
@@ -83,7 +83,6 @@ class FixtureGenerator
 
         return $value;
     }
-
 
     /**
      * Check if the evaluated $value is different from the latest one
@@ -120,6 +119,7 @@ class FixtureGenerator
     {
         return $this->entitiesByDefinition;
     }
+
     /**
      * @return array
      */
@@ -142,7 +142,6 @@ class FixtureGenerator
         for ($i = 0; $i < $quantity; ++$i) {
             $fixtureId = sprintf('%s_%s', $fixtureClass, $i);
             [$data, $translations] = $this->generateRow($definition);
-            $this->entities[$fixtureId] = $data;
             if ($definition->hasLang()) {
                 $this->entitiesLang[$fixtureClass][$fixtureId] = $translations;
             }
@@ -159,7 +158,7 @@ class FixtureGenerator
         }
 
         if ($definition->hasLang()) {
-            foreach($this->getLangs() as $lang) {
+            foreach ($this->getLangs() as $lang) {
                 foreach ($definition->getLocalizedColumns() as $column => $columnDescription) {
                     $langs[$lang][$column] = $this->processField($column, $columnDescription, $definition, $this->fakersLang[$lang]);
                 }
@@ -167,7 +166,7 @@ class FixtureGenerator
         }
 
         if ($definition->getId() !== null) {
-            $data['@id'] = $data['@'.$definition->getId()];
+            $data['@id'] = $data['@' . $definition->getId()];
         }
 
         return [$data, $langs];
@@ -199,11 +198,7 @@ class FixtureGenerator
         $this->generateForDefinition($this->definitions->getDefinitionByModel($model));
         $resolvedDefinition = $this->definitions->getDefinitionByModel($model);
 
-        dump($resolvedDefinition->getFixtureClass());
-        $randomKey = array_rand( $this->entitiesByDefinition[$resolvedDefinition->getFixtureClass()]);
-
-        dump($this->entitiesByDefinition[$resolvedDefinition->getFixtureClass()][$randomKey]);
-
+        $randomKey = array_rand($this->entitiesByDefinition[$resolvedDefinition->getFixtureClass()]);
 
         return $this->entitiesByDefinition[$resolvedDefinition->getFixtureClass()][$randomKey]['@id'];
     }

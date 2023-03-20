@@ -6,13 +6,14 @@ fields:
           relation: Country
         id_state:
           relation: State
+
 #        exclusive_fields:
-#          id_customer:
-#            relation: Customer
-#          id_manufacturer:
-#            relation: Manufacturer
-#          id_supplier:
-#            relation: Supplier
+        id_customer:
+            relation: Customer
+        id_manufacturer:
+            relation: Manufacturer
+        id_supplier:
+            relation: Supplier
         id_warehouse:
           value: 0
         alias:
@@ -37,6 +38,8 @@ fields:
           type: word
           args:
             - 10
+        phone:
+          type: phoneNumber
         phone_mobile:
           type: phoneNumber
         vat_number:

@@ -5,17 +5,17 @@ fields:
     columns:
         id_reference:
           type: increment
-        id_tax_rules_group:
-          type: numberBetween
-          args:
-            - 0
-            - 5
+#        id_tax_rules_group:
+#          type: numberBetween
+#          args:
+#            - 0
+#            - 5
         name:
           type: word
           args:
             - 10
         url:
-          type: url
+          type: md5
         active:
           type: boolean
           args:
@@ -60,6 +60,11 @@ fields:
           args:
             - 0
             - 100
+        max_weight:
+          type: numberBetween
+          args:
+            - 0
+            - 100
         grade:
           type: numberBetween
           args:
@@ -71,23 +76,3 @@ fields_lang:
         type: words
         args:
           - 3
-entities:
-    My_carrier:
-        fields:
-            id_reference: 2
-            active: 1
-            shipping_handling: 1
-            range_behaviour: 0
-            is_free: 0
-            shipping_external: 0
-            need_range: 0
-            shipping_method: 0
-            max_width: 0
-            max_height: 0
-            max_depth: 0
-            max_weight: 0
-            grade: 0
-            name: My carrier
-            url: ~
-        fields_lang:
-            delay: Delivery next day!

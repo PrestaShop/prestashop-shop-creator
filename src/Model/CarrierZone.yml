@@ -2,8 +2,8 @@ fields:
     primary: 'id_carrier, id_zone'
     sql: 'a.id_carrier > 1'
     columns:
-        id:
-          type: increment
+#        id:
+#          type: increment
         id_carrier:
           relation: Carrier
         id_zone:

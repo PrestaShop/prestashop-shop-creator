@@ -69,10 +69,9 @@ class Generator
         }
 
         foreach ($generator->getEntitiesByDefinition() as $definitionKey => $fixtures) {
-
             try {
                 $definition = $definitionsCollection->getDefinition($definitionKey);
-                $this->dumpFile($definition, array_values($fixtures));
+                $this->dumpFile($definition, array_values($fixtures), $definitionsCollection);
                 $this->generateImages($definition, $fixtures);
             } catch (\RuntimeException $exception) {
                 continue; // do not dump fixtures loaded through xml
@@ -111,7 +110,7 @@ class Generator
         }
     }
 
-    private function dumpFile(FixtureDefinition $definition, array $fixtures): void
+    private function dumpFile(FixtureDefinition $definition, array $fixtures, FixtureDefinitionCollection $collection): void
     {
         $fieldData = [];
         foreach ($definition->getColumns() as $column => $columnDefintion) {
@@ -119,14 +118,14 @@ class Generator
                 '@name' => $column,
             ];
             if (array_key_exists('relation', $columnDefintion)) {
-                $field['@relation'] = $columnDefintion['relation'];
+                $field['@relation'] = $collection->getDefinitionByModel($columnDefintion['relation'])->getFixtureClass();
             }
 
             $fieldData[] = $field;
         }
 
         $fields = [
-            'field' => $fieldData
+            'field' => $fieldData,
         ];
 
         if ($definition->getId() !== null) {
@@ -145,7 +144,7 @@ class Generator
         $data = [
             'fields' => $fields,
             'entities' => [
-                $definition->getFixtureClass() => array_values($fixtures)
+                $definition->getFixtureClass() => array_values($fixtures),
             ],
         ];
 
@@ -178,7 +177,7 @@ class Generator
         $this->fileSystem->dumpFile(
             sprintf('%s/langs/%s/%s.xml',
                 $this->targetDirectory,
-                substr($lang, 0 ,2),
+                substr($lang, 0, 2),
                 $definition->getFixtureClass()),
             $content
         );

@@ -2,7 +2,7 @@ fields:
     class: 'OrderDetail'
     columns:
         id_order:
-          relation: Orders
+          relation: Order
           generate_all: true
         id_order_invoice:
           value: 0

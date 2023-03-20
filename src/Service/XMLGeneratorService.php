@@ -3,7 +3,6 @@
 namespace ShopGenerator\Service;
 
 use Doctrine\Common\Inflector\Inflector;
-use RuntimeException;
 use ShopGenerator\Generator\EntityGenerator;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -13,7 +12,7 @@ class XMLGeneratorService
     /**
      * @param $configuration
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
@@ -79,7 +78,7 @@ class XMLGeneratorService
      *
      * @return EntityGenerator
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      * @throws \Symfony\Component\Yaml\Exception\ParseException
      */
     private static function generateXML(
@@ -93,7 +92,7 @@ class XMLGeneratorService
         $entityModel = Yaml::parse(file_get_contents(__DIR__ . '/../Model/' . $modelName . '.yml'));
         if (!array_key_exists($configKey, $configuration)) {
             if (!array_key_exists('primary', $entityModel['fields'])) {
-                throw new RuntimeException('Missing configuration entry for key ' . $configKey);
+                throw new \RuntimeException('Missing configuration entry for key ' . $configKey);
             } else {
                 $entityCount = 1;
             }

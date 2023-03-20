@@ -60,11 +60,6 @@ fields:
           args:
             - 0
             - 100
-        max_depth:
-          type: numberBetween
-          args:
-            - 0
-            - 100
         grade:
           type: numberBetween
           args:

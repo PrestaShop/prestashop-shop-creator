@@ -10,14 +10,14 @@ fields:
         id_address_delivery:
           relation: Address
         id_address_invoice:
-          realtion: Address
+          relation: Address
         id_currency:
           value: 1
-        exclusive_fields:
-          id_customer:
-            relation: Customer
-          id_guest:
-            relation: Guest
+#        exclusive_fields:
+#          id_customer:
+#            relation: Customer
+#          id_guest:
+#            relation: Guest
         secure_key:
           type: md5
         recyclable:

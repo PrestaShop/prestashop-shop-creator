@@ -1,0 +1,22 @@
+fields:
+    id: 'name'
+    class: 'Profile'
+    sql: 'a.id_profile > 1'
+    columns:
+        name:
+          type: word
+          hidden: true
+fields_lang:
+    columns:
+        name:
+          type: word
+entities:
+    Logistician:
+      fields_lang:
+        name: Logistician
+    Translator:
+      fields_lang:
+        name: Translator
+    Salesman:
+      fields_lang:
+        name: Salesman

@@ -112,13 +112,13 @@ class EntityGenerator
         $fields = $this->entityModel['fields'];
 
         $parentEntities = $this->extractParentEntities($entityModel);
-
-        if ($parentEntities) {
-            $this->parentEntities = $parentEntities;
-        }
         if (isset($fields['primary'])) {
             $this->primary = $fields['primary'];
         }
+        if ($parentEntities) {
+            $this->parentEntities = $parentEntities;
+        }
+
         if (!$parentEntities) {
             if (!$this->primary) {
                 echo 'Generating ' . $nbEntities . ' ' . $entityElementName . ' entities' . PHP_EOL;

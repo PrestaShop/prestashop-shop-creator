@@ -7,7 +7,7 @@ fields:
             - 0
             - 1
         id_order:
-          relation: Orders
+          relation: Order
           generate_all: true
         id_order_state:
           relation: OrderState

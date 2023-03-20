@@ -6,5 +6,6 @@
   </fields>
   <entities>
     <cms_category id="Home" id_parent="" active="1"/>
+    <cms_category id="Home" id_parent="" active="1"/>
   </entities>
 </entity_cms_category>

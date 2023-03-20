@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_carrier>
-  <fields id="name" class="Carrier" sql="a.id_carrier = 1">
+  <fields id="name" class="Carrier" sql="a.id_carrier &gt; 1">
     <field name="id_reference"/>
     <field name="id_tax_rules_group"/>
     <field name="name"/>
@@ -19,8 +19,16 @@
     <field name="grade"/>
   </fields>
   <entities>
-    <carrier id="carrier_1" id_reference="1" id_tax_rules_group="0" active="1" shipping_handling="0" range_behavior="0" is_free="1" shipping_external="0" need_range="0" shipping_method="0" max_width="0" max_height="0" max_depth="0" max_weight="0" grade="0">
-      <name>0</name>
+    <carrier id="My_carrier" id_reference="2" active="1" shipping_handling="1" range_behavior="0" is_free="0" shipping_external="0" need_range="0" shipping_method="0" max_width="0" max_height="0" max_depth="0" max_weight="0.000000" grade="0">
+      <name>My carrier</name>
+      <url/>
+    </carrier>
+    <carrier id="My_cheap_carrier" id_reference="3" active="0" shipping_handling="1" range_behavior="0" is_free="0" shipping_external="0" need_range="0" shipping_method="2" max_width="0" max_height="0" max_depth="0" max_weight="0.000000" grade="0">
+      <name>My cheap carrier</name>
+      <url/>
+    </carrier>
+    <carrier id="My_light_carrier" id_reference="3" active="0" shipping_handling="1" range_behavior="0" is_free="0" shipping_external="0" need_range="0" shipping_method="1" max_width="0" max_height="0" max_depth="0" max_weight="0.000000" grade="0">
+      <name>My light carrier</name>
       <url/>
     </carrier>
   </entities>

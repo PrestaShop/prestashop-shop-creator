@@ -30,7 +30,8 @@ fields:
         unit_price_impact:
           value: 0
         default_on:
-          type: conditionalValue
+          value: 1
+#          type: conditionalValue
           args:
             - isNewValue({id_product}) # condition
             - 1 # value if condition is true

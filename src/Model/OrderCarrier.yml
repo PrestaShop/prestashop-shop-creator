@@ -2,7 +2,7 @@ fields:
     class: 'OrderCarrier'
     columns:
         id_order:
-          relation: Orders
+          relation: Order
           generate_all: true
         id_carrier:
           relation: Carrier

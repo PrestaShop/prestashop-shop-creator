@@ -1,5 +1,12 @@
 fields:
-    id: 'iso_code'
+    id: 'name'
+    class: Group
     columns:
-        id_reference:
-          type: increment
+        name:
+            type: word
+        reduction:
+            value: 0
+        price_display_method:
+            type: boolean
+        show_prices:
+            type: boolean

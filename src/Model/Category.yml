@@ -5,7 +5,7 @@ fields:
     image_width: 141
     image_height: 180
     image_category: abstract
-    sql: 'a.id_category > 2'
+    sql: 'a.id_category <= 2'
     columns:
         name:
           type: word

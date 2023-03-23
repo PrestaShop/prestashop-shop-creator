@@ -4,6 +4,10 @@ fields:
         id_product:
           relation: Product
           generate_all: true
+        id_currency:
+          value: 1
+#          relation: Currency
+#          generate_all: true
         id_product_attribute:
           relation: ProductAttribute
         id_supplier:

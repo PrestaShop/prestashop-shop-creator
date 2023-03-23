@@ -1,5 +1,8 @@
 fields:
-    id: 'iso_code'
+    id: 'name'
+    class: 'Zone'
     columns:
-        id_reference:
-          type: increment
+        name:
+            type: word
+        active:
+            type: boolean

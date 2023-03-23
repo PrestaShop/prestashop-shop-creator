@@ -1,5 +1,5 @@
 fields:
-    id: 'iso_code'
+    id: 'name'
     columns:
-        id_reference:
-          type: increment
+        name:
+          type: word

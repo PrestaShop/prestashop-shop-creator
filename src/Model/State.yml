@@ -1,5 +1,15 @@
 fields:
     id: 'iso_code'
     columns:
-        id_reference:
-          type: increment
+        id_country:
+            relation: Country
+        id_zone:
+            relation: Zone
+        name:
+            type: word
+        iso_code:
+            type: word
+        tax_behavior:
+            type: boolean
+        active:
+            type: boolean

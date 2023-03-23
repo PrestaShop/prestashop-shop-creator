@@ -1,7 +1,7 @@
 fields:
     id: 'name'
     class: 'Carrier'
-    sql: 'a.id_carrier > 1'
+    sql: 'a.id_carrier = 1'
     columns:
         id_reference:
           type: increment

@@ -3,6 +3,7 @@
 namespace ShopGenerator;
 
 use Faker\Factory;
+use ShopGenerator\Configuration\ConfigurationLoader;
 use ShopGenerator\Fixture\FixtureDefinition;
 use ShopGenerator\Fixture\FixtureDefinitionCollection;
 use ShopGenerator\Fixture\FixtureGenerator;

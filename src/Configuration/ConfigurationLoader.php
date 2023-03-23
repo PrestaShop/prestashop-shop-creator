@@ -1,6 +1,6 @@
 <?php
 
-namespace ShopGenerator;
+namespace ShopGenerator\Configuration;
 
 use Symfony\Component\Yaml\Yaml;
 

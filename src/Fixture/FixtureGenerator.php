@@ -155,6 +155,11 @@ class FixtureGenerator
         $langs = [];
         foreach ($definition->getColumns() as $column => $columnDescription) {
             $data['@' . $column] = $this->processField($column, $columnDescription, $definition, $this->faker);
+
+            foreach ($definition->getLocalizedColumns() as $column => $defaultDataForColumn) {
+//                dump($data, $column);
+                $data[$column] = $this->processField($column, $columnDescription, $definition, $this->faker);
+            }
         }
 
         if ($definition->hasLang()) {

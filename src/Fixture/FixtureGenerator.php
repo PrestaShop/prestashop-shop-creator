@@ -135,8 +135,8 @@ class FixtureGenerator
             return;
         }
 
-        $this->entitiesByDefinition[$definition->getFixtureClass()] = [];
         $fixtureClass = $definition->getFixtureClass();
+        $this->entitiesByDefinition[$fixtureClass] = [];
         $quantity = $this->configuration[$fixtureClass] ?? 0;
 
         for ($i = 0; $i < $quantity; ++$i) {
@@ -146,6 +146,7 @@ class FixtureGenerator
                 $this->entitiesLang[$fixtureClass][$fixtureId] = $translations;
             }
             $this->entitiesByDefinition[$fixtureClass][$fixtureId] = $data;
+            dump($fixtureClass, $i); usleep(10);
         }
     }
 
@@ -155,11 +156,11 @@ class FixtureGenerator
         $langs = [];
         foreach ($definition->getColumns() as $column => $columnDescription) {
             $data['@' . $column] = $this->processField($column, $columnDescription, $definition, $this->faker);
-
-            foreach ($definition->getLocalizedColumns() as $column => $defaultDataForColumn) {
-//                dump($data, $column);
-                $data[$column] = $this->processField($column, $columnDescription, $definition, $this->faker);
-            }
+//
+//            foreach ($definition->getLocalizedColumns() as $column2 => $defaultDataForColumn) {
+////                dump($data, $column);
+//                $data[$column2] = $this->processField($column, $columnDescription, $definition, $this->faker);
+//            }
         }
 
         if ($definition->hasLang()) {

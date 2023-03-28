@@ -148,6 +148,9 @@ class Generator
         if ($definition->getNullValue() !== null) {
             $fields['@null'] = $definition->getNullValue();
         }
+        if ($definition->getImageCategory() !== null) {
+            $fields['@image'] = $definition->getImageDirectory();
+        }
 
         $data = [
             'fields' => $fields,

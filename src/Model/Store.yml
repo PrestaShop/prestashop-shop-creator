@@ -4,14 +4,18 @@ fields:
     image: 'st'
     image_category: business
     columns:
-        name:
-          type: word
-          unique: true
-          hidden: true
         id_country:
           relation: Country
         id_state:
           relation: State
+        name:
+          type: word
+          unique: true
+          hidden: true
+        address1:
+            value: 'ad1'
+        address2:
+            value: 'ad2'
         city:
           type: city
         postcode:
@@ -20,12 +24,16 @@ fields:
           type: latitude
         longitude:
           type: longitude
+        hours:
+          value: ''
         phone:
           value: ''
         fax:
           value: ''
         email:
           type: email
+        note:
+          value: ''
         active:
           value: 1
 fields_lang:

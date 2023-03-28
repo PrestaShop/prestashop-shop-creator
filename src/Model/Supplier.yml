@@ -17,7 +17,7 @@ fields_lang:
         name:
           type: words
           args:
-            - 2 #nb words
+            - 1 #nb words
         description:
             value: 'desc'
         meta_title:

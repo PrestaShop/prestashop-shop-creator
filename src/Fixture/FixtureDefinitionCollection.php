@@ -19,12 +19,12 @@ class FixtureDefinitionCollection
         }
     }
 
-    public function getDefinition(string $definition): FixtureDefinition
+    public function getDefinition(string $definitionName): FixtureDefinition
     {
-        $definition = $this->definitions[$definition] ?? null;
+        $definition = $this->definitions[$definitionName] ?? null;
 
         if (null === $definition) {
-            throw new \RuntimeException(sprintf('"%s" does not exists in definitions', $definition));
+            throw new \RuntimeException(sprintf('"%s" does not exists in definitions', $definitionName));
         }
 
         return $definition;

@@ -13,7 +13,7 @@ fields:
             - 10 #nb chars
           hidden: true
         id_parent:
-          relation: Category
+          value: Women
         active:
           type: boolean
           args:

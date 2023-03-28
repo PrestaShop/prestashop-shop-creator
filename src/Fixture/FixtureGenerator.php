@@ -19,6 +19,7 @@ class FixtureGenerator
     private array $entitiesLang = [];
     // i don't know why this is needed, but inherit from legacy code.
     private $fieldValues = [];
+    private $importedDefinitions = [];
 
     public function __construct(array $configuration)
     {
@@ -109,6 +110,37 @@ class FixtureGenerator
     {
         $this->entitiesByDefinition = $data;
 
+        // for each entities inside xml data, we hardcode the same values for all langs
+        foreach ($this->getLangs() as $lang) {
+
+            foreach ($this->entitiesByDefinition as $definition => $data) {
+                $multilang = false;
+                try {
+                    $multilang = !empty($this->definitions->getDefinition($definition)->getLocalizedColumns());
+                } catch (\RuntimeException $e) {
+                    // definition does not exist, so no multilang
+                }
+                if (!$multilang) {
+                    continue;
+                }
+
+                foreach ($data as $id => $datum) {
+                    $values = [];
+
+                    foreach ($datum as $column => $value) {
+//                        dump($value, $column, $id); die;
+                        if (str_starts_with('@', $column)) {
+                            continue;
+                        }
+
+                        $values[$column] = $value;
+                    }
+
+                    $this->entitiesLang[$definition][$id][$lang] = $values;
+                }
+            }
+        }
+
         return $this;
     }
 
@@ -130,32 +162,30 @@ class FixtureGenerator
 
     public function generateForDefinition(FixtureDefinition $definition): void
     {
-        // Import data, unless some data already exists to avoid some conflicts
-        if (array_key_exists($definition->getFixtureClass(), $this->entitiesByDefinition)) {
-            return;
+        $fixtureClass = $definition->getFixtureClass();
+
+        if (!array_key_exists($fixtureClass, $this->entitiesByDefinition)) {
+            $this->entitiesByDefinition[$fixtureClass] = [];
         }
 
-        $fixtureClass = $definition->getFixtureClass();
-        $this->entitiesByDefinition[$fixtureClass] = [];
         $quantity = $this->configuration[$fixtureClass] ?? 0;
 
         for ($i = 0; $i < $quantity; ++$i) {
-            $fixtureId = sprintf('%s_%s', $fixtureClass, $i);
-            [$data, $translations] = $this->generateRow($definition);
+            [$fixtureId, $data, $translations] = $this->generateRow($definition, $i);
             if ($definition->hasLang()) {
                 $this->entitiesLang[$fixtureClass][$fixtureId] = $translations;
             }
             $this->entitiesByDefinition[$fixtureClass][$fixtureId] = $data;
-            dump($fixtureClass, $i); usleep(10);
         }
     }
 
-    private function generateRow(FixtureDefinition $definition): array
+    private function generateRow(FixtureDefinition $definition, int $i): array
     {
         $data = [];
         $langs = [];
         foreach ($definition->getColumns() as $column => $columnDescription) {
             $data['@' . $column] = $this->processField($column, $columnDescription, $definition, $this->faker);
+
 //
 //            foreach ($definition->getLocalizedColumns() as $column2 => $defaultDataForColumn) {
 ////                dump($data, $column);
@@ -172,10 +202,15 @@ class FixtureGenerator
         }
 
         if ($definition->getId() !== null) {
-            $data['@id'] = $data['@' . $definition->getId()];
+            $id = $data['@' . $definition->getId()];
+            $fixtureId = sprintf('%s_%d_%s',$definition->getFixtureClass(), $i, $id);
+
+            $data['@id'] = $fixtureId;
+        } else {
+            $fixtureId =  sprintf('%s_%d',$definition->getFixtureClass(), $i);
         }
 
-        return [$data, $langs];
+        return [$fixtureId, $data, $langs];
     }
 
     private function processField(string $fieldName, array $fieldDescription, FixtureDefinition $definition, Generator $generator): mixed
@@ -187,7 +222,7 @@ class FixtureGenerator
 
         // relation to another entity
         if (array_key_exists('relation', $fieldDescription)) {
-            return $this->resolveRelation($definition, $fieldDescription['relation']);
+            return $this->resolveRelation($fieldDescription['relation']);
         }
 
         $type = $fieldDescription['type'] ?? null;
@@ -199,10 +234,18 @@ class FixtureGenerator
         return $this->generateValue($type, $fieldName, $fieldDescription, $definition, $generator);
     }
 
-    private function resolveRelation(FixtureDefinition $definition, string $model): ?string
+    private function resolveRelation(string $model): ?string
     {
-        $this->generateForDefinition($this->definitions->getDefinitionByModel($model));
         $resolvedDefinition = $this->definitions->getDefinitionByModel($model);
+        // Import data, unless some data already exists to avoid some conflicts
+        if (!array_key_exists($resolvedDefinition->getFixtureClass(), $this->importedDefinitions)) {
+            $this->importedDefinitions[$resolvedDefinition->getFixtureClass()] = true;
+            $this->generateForDefinition($resolvedDefinition);
+        }
+
+        if (empty($this->entitiesByDefinition[$resolvedDefinition->getFixtureClass()])) {
+            throw new \RuntimeException(sprintf('"%s" has no fixture', $model));
+        }
 
         $randomKey = array_rand($this->entitiesByDefinition[$resolvedDefinition->getFixtureClass()]);
 

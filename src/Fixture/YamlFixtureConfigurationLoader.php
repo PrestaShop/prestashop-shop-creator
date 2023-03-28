@@ -52,6 +52,8 @@ class YamlFixtureConfigurationLoader
         $imageWidth = $model['fields']['image_width'] ?? 200;
         $imageHeight = $model['fields']['image_height'] ?? 200;
         $imageCategory = $model['fields']['image_category'] ?? null;
+        $dump = $model['dump'] ?? true;
+        $nullValue = $model['fields']['null'] ?? null;
 
         return new FixtureDefinition(
             $filePath->getFilenameWithoutExtension(),
@@ -63,10 +65,12 @@ class YamlFixtureConfigurationLoader
             $model['fields']['class'] ?? null,
             $model['fields']['sql'] ?? null,
             $model['fields']['primary'] ?? null,
+            $nullValue,
             $imageDirectory,
             $imageCategory,
             $imageWidth,
             $imageHeight,
+            $dump
         );
     }
 

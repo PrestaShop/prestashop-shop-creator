@@ -18,3 +18,11 @@ fields_lang:
           type: words
           args:
             - 2 #nb words
+        description:
+            value: 'desc'
+        meta_title:
+            value: 'meta_title'
+        meta_keywords:
+            value: 'meta_keys'
+        meta_description:
+            value: 'meta_desc'

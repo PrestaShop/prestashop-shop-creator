@@ -28,3 +28,7 @@ fields_lang:
           type: words
           args:
            - 3
+        meta_description:
+          type: words
+          args:
+           - 3

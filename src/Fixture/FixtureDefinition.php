@@ -19,6 +19,12 @@ class FixtureDefinition
     private ?string $imageDirectory;
     private ?string $imageCategory;
 
+    /**
+     * If the dump file should be created. Defaults to yes, but is set to no on enum tables, browsers, zones, states.
+     */
+    private bool $dump;
+    private ?string $nullValue;
+
     public function __construct(
         string $model,
         string $classIdentifier,
@@ -29,28 +35,33 @@ class FixtureDefinition
         ?string $class,
         ?string $sql,
         ?string $primary,
+        ?string $nullValue,
         ?string $imageDirectory = null,
         ?string $imageCategory = null,
         int $imgWidth = 200,
         int $imgHeight = 200,
+        bool $dump = true,
     ) {
         $this->fixtureClass = $classIdentifier;
         $this->columns = $columns;
         $this->localizedColumns = $localizedColumns;
-        if ([] === $this->localizedColumns) {
-            $this->hasLang = false;
-        }
-
         $this->relations = $relations;
         $this->imgWidth = $imgWidth;
         $this->imgHeight = $imgHeight;
         $this->id = $id;
         $this->sql = $sql;
         $this->primary = $primary;
+        $this->nullValue = $nullValue;
         $this->class = $class;
         $this->imageDirectory = $imageDirectory;
         $this->imageCategory = $imageCategory;
         $this->model = $model;
+        $this->dump = $dump;
+
+
+        if ([] === $this->localizedColumns) {
+            $this->hasLang = false;
+        }
     }
 
     /**
@@ -160,5 +171,15 @@ class FixtureDefinition
     public function getModel(): string
     {
         return $this->model;
+    }
+
+    public function shouldDump(): bool
+    {
+        return $this->dump;
+    }
+
+    public function getNullValue(): ?string
+    {
+        return $this->nullValue;
     }
 }

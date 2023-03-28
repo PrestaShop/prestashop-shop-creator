@@ -1,8 +1,11 @@
+dump: false
 fields:
     class: 'AttributeGroup'
     columns:
         id:
           type: increment
+        name:
+          type: word
         is_color_group:
             type: boolean
             args:

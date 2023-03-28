@@ -1,6 +1,7 @@
 fields:
-    primary: 'id_product, id_product_attribute'
+    primary: 'id_stock_available'
     class: 'StockAvailable'
+    'null': '1'
     columns:
         id_stock_available:
           type: increment

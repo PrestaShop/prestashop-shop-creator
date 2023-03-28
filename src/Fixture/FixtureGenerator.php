@@ -108,9 +108,10 @@ class FixtureGenerator
 
     public function setInitialData(array $data): self
     {
+        // Sets all data into already "generated" entities.
         $this->entitiesByDefinition = $data;
 
-        // for each entities inside xml data, we hardcode the same values for all langs
+        // for each entities inside xml data, we hardcode the same values for all needed langs (opsrry for that loop)
         foreach ($this->getLangs() as $lang) {
 
             foreach ($this->entitiesByDefinition as $definition => $data) {

@@ -1,3 +1,4 @@
+dump: false
 fields:
     id: 'name'
     columns:

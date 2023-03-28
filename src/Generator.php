@@ -113,6 +113,10 @@ class Generator
 
     private function dumpFile(FixtureDefinition $definition, array $fixtures, FixtureDefinitionCollection $collection): void
     {
+        if (!$definition->shouldDump()) {
+            return;
+        }
+
         $fieldData = [];
         foreach ($definition->getColumns() as $column => $columnDefintion) {
             $field = [
@@ -141,6 +145,9 @@ class Generator
         if ($definition->getSql() !== null) {
             $fields['@sql'] = $definition->getSql();
         }
+        if ($definition->getNullValue() !== null) {
+            $fields['@null'] = $definition->getNullValue();
+        }
 
         $data = [
             'fields' => $fields,
@@ -163,6 +170,10 @@ class Generator
 
     private function dumpTranslationsFiles(FixtureDefinition $definition, array $translations, string $lang): void
     {
+        if (!$definition->shouldDump()) {
+            return;
+        }
+
         $data = [];
         foreach ($translations as $fixtureId => $translation) {
             $translation[$lang]['@id'] = $fixtureId;

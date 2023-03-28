@@ -1,4 +1,5 @@
 fields:
+    id: 'firstname'
     class: 'Customer'
     columns:
         id:

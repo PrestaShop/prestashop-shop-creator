@@ -1,3 +1,4 @@
+dump: false
 fields:
     id: 'iso_code'
     class: 'Cms_category'

@@ -1,3 +1,4 @@
+dump: false
 fields:
     class: Gender
     id: 'name'

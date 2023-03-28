@@ -21,7 +21,7 @@ class GenerateFixturesCommand extends Command
         $generator = new Generator(
             sprintf('%s/app/config/config.yml', dirname(__DIR__, 2)),
             dirname(__DIR__) . '/../default_data/',
-            dirname(__DIR__) . '/../generated_data2',
+            dirname(__DIR__) . '/../generated_data',
             dirname(__DIR__) . '/../src/Model/',
             new YamlFixtureConfigurationLoader($inflector),
             new DefaultDataParser(),

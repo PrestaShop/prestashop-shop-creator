@@ -7,3 +7,8 @@ fields:
           relation: Category
         id_product:
           relation: Product
+        position:
+          type: numberBetween
+          args:
+              - 1 #min
+              - 10 #max

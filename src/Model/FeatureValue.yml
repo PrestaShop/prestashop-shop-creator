@@ -1,4 +1,5 @@
 fields:
+    id: 'value'
     class: 'FeatureValue'
     columns:
         id:
@@ -10,6 +11,10 @@ fields:
           type: boolean
           args:
             - 50
+        #needed for id, but not useful
+        # todo remove this ? 
+        value:
+            type: word
 fields_lang:
     columns:
         value:

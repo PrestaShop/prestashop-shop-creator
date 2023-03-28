@@ -1,5 +1,6 @@
 fields:
     class: 'Delivery'
+    sql: 'a.id_carrier > 1'
     columns:
         id:
           type: increment

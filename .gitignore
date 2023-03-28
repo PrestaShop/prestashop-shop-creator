@@ -3,6 +3,5 @@
 /.php_cs.cache
 /vendor/
 /generated_data/
-/generated_data2/
 .phpunit.cache
 .php_cs.cache

@@ -1,16 +1,14 @@
 fields:
-    id: 'alias'
-    class: 'Alias'
-    columns:
-        alias:
-          type: word
-          args:
-            - 10
-        search:
-          type: word
-          args:
-            - 10
-        active:
-          type: boolean
-          args:
-            - 95 # probability of getting a true for this param
+  class: 'Alias'
+  columns:
+    alias:
+      type: word
+      unique: true
+    search:
+      type: text
+      args:
+        - 64
+    active:
+      type: boolean
+      args:
+        - 95 # probability of getting a true for this param

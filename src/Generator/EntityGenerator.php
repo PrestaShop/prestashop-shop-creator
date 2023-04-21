@@ -596,21 +596,22 @@ class EntityGenerator
             $value = call_user_func_array([$this, 'computeConditionalValue'], $argsFunctions);
         } elseif ($fakeType === 'increment') {
             $value = $this->increment++;
-        } elseif (array_key_exists('args', $fieldDescription)) {
-            $argsFunctions = $fieldDescription['args'];
-            $value = call_user_func_array([$fakerGenerator, $fakeType], $argsFunctions);
+        } else {
+            $argsFunctions = [];
+            if (array_key_exists('args', $fieldDescription)) {
+                $argsFunctions = $fieldDescription['args'];
+            }
+
+            if (array_key_exists('unique', $fieldDescription)) {
+                $value = call_user_func_array([$fakerGenerator->unique(), $fakeType], $argsFunctions);
+            } else {
+                $value = call_user_func_array([$fakerGenerator, $fakeType], $argsFunctions);
+            }
+
             if (is_array($value)) { // in case of words
                 $value = implode(' ', $value);
             }
-            if ($fakeType === 'boolean') {
-                $value = (int) $value;
-            }
-        } else {
-            if (array_key_exists('unique', $fieldDescription)) {
-                $value = $fakerGenerator->unique()->{$fakeType};
-            } else {
-                $value = $fakerGenerator->{$fakeType};
-            }
+
             if ($fakeType === 'boolean') {
                 $value = (int) $value;
             }

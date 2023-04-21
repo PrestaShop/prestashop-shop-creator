@@ -9,6 +9,7 @@ fields:
           value: 0
         delimiter2:
           type: numberBetween
+          unique: true
           args:
-            - 1000
+            - 10
             - 10000

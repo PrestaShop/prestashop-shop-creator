@@ -83,6 +83,9 @@ class EntityGenerator
     /** @var array Array of already generated img to be reused to speed up the generation process */
     protected $generatedImgs = [];
 
+    /** @var array Array of already unique associated keys generated */
+    protected $existingChildKeys = [];
+
     /**
      * EntityGenerator constructor.
      *
@@ -301,6 +304,7 @@ class EntityGenerator
     {
         $this->relationValues = [];
         $entityData = $this->generateMainEntityData($child, $relationValues);
+        $this->sxml_append($child, $entityData);
         if (array_key_exists($this->id, (array) $entityData)) {
             $idValue = $entityData[$this->id];
         } else {
@@ -389,7 +393,13 @@ class EntityGenerator
     private function generateMainEntityData(\SimpleXMLElement $element, &$relationValues = null)
     {
         $this->fieldValues = [];
-        $child = $element->addChild($this->entityElementName);
+        $child = new \SimpleXMLElement(
+            sprintf(
+                '<%s></%s>',
+                $this->entityElementName,
+                $this->entityElementName
+            )
+        );
         $this->relationList[$this->entityElementName] = [];
         $idValue = null;
         $relationLists = $relationConditions = $valueAttributes = $fakerAttributes = [];
@@ -485,7 +495,37 @@ class EntityGenerator
             }
         }
 
+        if (isset($this->entityModel['fields']['unique'])) {
+            $uniqueFields = explode(',', $this->entityModel['fields']['unique']);
+            $key = [];
+            foreach ($uniqueFields as $uniqueField) {
+                $key[] = (string) $child->attributes()[$uniqueField];
+            }
+            $key = implode('-', $key);
+
+            if (in_array($key, $this->existingChildKeys)) {
+                $child = $this->generateMainEntityData($element, $relationValues);
+            }
+
+            $this->existingChildKeys[] = $key;
+        }
+
         return $child;
+    }
+
+    /**
+     * Append SimpleXMLElement to another SimpleXMLElement
+     *
+     * @param \SimpleXMLElement $to
+     * @param \SimpleXMLElement $from
+     *
+     * @return void
+     */
+    public function sxml_append(\SimpleXMLElement $to, \SimpleXMLElement $from)
+    {
+        $toDom = dom_import_simplexml($to);
+        $fromDom = dom_import_simplexml($from);
+        $toDom->appendChild($toDom->ownerDocument->importNode($fromDom, true));
     }
 
     /**
@@ -678,141 +718,6 @@ class EntityGenerator
     }
 
     /**
-     * Compute the relation by checking if the relationName is not part of already generated relation from the entity
-     *
-     * @param string $relationName
-     * @param string $entityName
-     *
-     * @return \SimpleXMLElement
-     */
-    private function getRelationFromDependencies($relationName, $entityName)
-    {
-        // first get all the relations inside the entity
-        $relationEntity = null;
-        $relations = $this->relationList[$entityName];
-        foreach ($relations as $relation) {
-            // and check if this relation has itself relations
-            if (array_key_exists($relation, $this->relationList)) {
-                $relatedRelations = $this->relationList[$relation];
-                // if the relation we are generating is also part of another relation
-                if ($relationFieldName = array_search($relationName, $relatedRelations)) {
-                    // we have generated the dependent entity earlier, we should use the values from this entity
-                    // instead of a random one
-                    if (array_key_exists($relation, $this->relationValues)) {
-                        // relations are indexed by id, so to get the proper relation, just use the relationValues which
-                        // contains the id of the already generated dependent entity
-                        $dependentRelation = $this->relations[$relation][$this->relationValues[$relation]];
-                        $newKey = (string) ($dependentRelation[$relationFieldName]);
-                        if (!empty($newKey)) {
-                            // finally get the relation using the value stored in the dependency
-                            $relationEntity = $this->relations[$relationName][$newKey];
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (empty($relationEntity)) {
-            $relationEntity = $this->getRelationWithMatchingFieldsFromDependencies($relationName);
-        }
-
-        return $relationEntity;
-    }
-
-    /**
-     * Get a relation with fields which match the already generated fields in dependencies
-     *
-     * @param string $relationName
-     *
-     * @return \SimpleXMLElement|null
-     */
-    private function getRelationWithMatchingFieldsFromDependencies($relationName)
-    {
-        static $lastRelationList = null;
-        if ($lastRelationList === null) {
-            $lastRelationList = $this->relations[$relationName];
-        }
-        // get the relations inside the current relation
-        if (!array_key_exists($relationName, $this->relationList)) {
-            return null;
-        }
-        $relationFieldValue = [];
-        $relations = $this->relationList[$relationName];
-        // get the list of the generated relations
-        $generatedRelations = array_keys($this->relationValues);
-        foreach ($generatedRelations as $generatedRelation) {
-            if (array_key_exists($generatedRelation, $this->relationList)) {
-                // get the relations inside the generatedRelation
-                $relationsFromRelations = $this->relationList[$generatedRelation];
-                // get the common relations between the current relation and the others
-                $commonRelations = array_intersect($relations, $relationsFromRelations);
-
-                // get the content of the generated relation
-                $dependentRelation = $this->relations[$generatedRelation][$this->relationValues[$generatedRelation]];
-                // get the effective value we expect for cross dependent field
-                if (!empty($commonRelations)) {
-                    foreach ($commonRelations as $key => $value) {
-                        $dependentValue = (string) ($dependentRelation[$key]);
-                        // skip null value
-                        if ($dependentValue != '') {
-                            $relationFieldValue[$key] = (string) ($dependentRelation[$key]);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (empty($relationFieldValue)) {
-            return null;
-        }
-
-        $potentialRelation = $this->getMatchingRelation(
-            $lastRelationList,
-            $relationFieldValue
-        );
-
-        // just in case, if we found no value with the reduced relation list, retry with the full list
-        if (empty($potentialRelation)) {
-            $lastRelationList = $this->relations[$relationName];
-            $potentialRelation = $this->getMatchingRelation(
-                $lastRelationList,
-                $relationFieldValue
-            );
-        }
-
-        return $potentialRelation;
-    }
-
-    /**
-     * Find inside the relations array the relation with the matching entries from relationFieldValue
-     *
-     * @param array $relations
-     * @param array $relationFieldValue
-     *
-     * @return \SimpleXMLElement|null
-     */
-    private function getMatchingRelation(&$relations, $relationFieldValue)
-    {
-        // check the fields of the already generated relations match the current randomRelation
-        foreach ($relations as $relationKey => $potentialRelation) {
-            foreach ($relationFieldValue as $key => $value) {
-                $potentialRelationValue = (string) ($potentialRelation[$key]);
-                // not matching, try another relation
-                if ($potentialRelationValue != $value) {
-                    // optimization, we use a dynamic relation list from where we remove non matching elements
-                    unset($relations[$relationKey]);
-                    continue 2;
-                }
-            }
-
-            return $potentialRelation;
-        }
-
-        return null;
-    }
-
-    /**
      * Check the randomRelation match the given relationConditions
      *
      * @param array $relationConditions
@@ -848,11 +753,6 @@ class EntityGenerator
      */
     private function getRandomRelationId($relationName, $relationConditions, $entityName)
     {
-        // if the current relation is also inside an already generated relation, use it instead of a random value
-        if ($relation = $this->getRelationFromDependencies($relationName, $entityName)) {
-            return (string) ($relation['id']);
-        }
-
         $maxRetry = 1000;
         $try = 1;
         do {

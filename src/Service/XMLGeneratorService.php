@@ -133,6 +133,7 @@ class XMLGeneratorService
             $yamlContent = file_get_contents($pathName);
             if (preg_match_all('/relation:\W*(.+)$/uim', $yamlContent, $matches)) {
                 foreach ($matches[1] as $dependency) {
+                    $dependency = str_ireplace(["\r","\n",'\r','\n'], '', $dependency);
                     if ($dependency != $modelType) {
                         $dependencies[$dependency][] = $modelType;
                         $storedDependencies[Inflector::tableize($dependency)][] = Inflector::tableize($modelType);

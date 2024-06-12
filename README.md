@@ -5,6 +5,9 @@ The shop generator generates a list of folders & xml files into 'generated_data'
 /install/fixtures/fashion directory of PrestaShop, to generate at the installation a shop initialized with the specified 
 number of entities.
 
+> [!NOTE]
+> In 2023, we attempted to fix multiple issues regarding this tool. Sadly, we found out its design (using XML files as output) made it very hard to output a controlled format.
+> Another way to load heavy loads of data into a shop is being tried on this repository: [PrestaShop/ps_fixturescreator](https://github.com/PrestaShop/ps_fixturescreator)
 
 Installation & configuration
 --------

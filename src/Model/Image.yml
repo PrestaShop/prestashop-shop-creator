@@ -12,7 +12,11 @@ fields:
           relation: Product
           generate_all: true
         cover:
-          value: 1
+            type: conditionalValue
+            args:
+              - isNewValue({id_product})
+              - 1
+              - 0
 fields_lang:
     columns:
         legend:
